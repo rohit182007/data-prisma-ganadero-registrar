@@ -105,7 +105,10 @@ function updateAuthUI() {
   loginBtn.classList.add('hidden');
   logoutBtn.classList.add('hidden');
   appContent.classList.add('hidden');
-
+  console.log('No hay sesión. Redirigiendo a Cognito...', {
+  COGNITO_CLIENT_ID,
+  COGNITO_DOMAIN
+  });
   login();
 }
 
