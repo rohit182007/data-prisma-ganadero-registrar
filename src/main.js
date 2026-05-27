@@ -198,7 +198,16 @@ document.querySelector('#app').innerHTML = `
 
               <label>
                 Rancho / establo
-                <input id="rancho" type="text" placeholder="Ej. Rancho Principal" />
+                <select id="ranchSelect">
+                  <option value="">Sin rancho asignado</option>
+                </select>
+              </label>
+
+              <label>
+                Hato
+                <select id="herdSelect">
+                  <option value="">Sin hato asignado</option>
+                </select>
               </label>
             </div>
 
@@ -254,17 +263,19 @@ document.querySelector('#app').innerHTML = `
             <div>
               <p class="eyebrow">Resumen operativo</p>
               <h3>Dashboard</h3>
-              <p class="muted">Vista ejecutiva del sistema ganadero: animales, producción, alertas y actividad reciente.</p>
+              <p class="muted">Vista ejecutiva con datos reales del demo: animales, producción, alertas y actividad reciente.</p>
             </div>
-            <span class="status-pill soft">Preparado</span>
+            <div class="module-actions">
+              <button id="dashboardRefreshBtn" type="button">Actualizar</button>
+              <span class="status-pill soft">Conectado a datos</span>
+            </div>
           </section>
 
-          <div class="module-card-grid">
-            <article class="module-feature-card"><span>🐄</span><strong>Animales activos</strong><p>Resumen del hato y accesos rápidos a registros.</p></article>
-            <article class="module-feature-card"><span>◌</span><strong>Producción</strong><p>Indicadores productivos y eventos recientes.</p></article>
-            <article class="module-feature-card"><span>⚕</span><strong>Salud</strong><p>Alertas veterinarias, vacunas y revisiones.</p></article>
-            <article class="module-feature-card"><span>▤</span><strong>Analytics</strong><p>Base para métricas y reportes ejecutivos.</p></article>
-          </div>
+          <section id="dashboardContent" class="dashboard-content">
+            <section class="card">
+              <p class="muted">Carga el Dashboard para consultar indicadores reales del demo.</p>
+            </section>
+          </section>
         </section>
 
         <section id="hatoRanchoSection" class="hidden module-page">
@@ -272,16 +283,93 @@ document.querySelector('#app').innerHTML = `
             <div>
               <p class="eyebrow">Estructura ganadera</p>
               <h3>Hato y Rancho</h3>
-              <p class="muted">Administración de ranchos, establos, hatos, corrales y ubicación operativa de animales.</p>
+              <p class="muted">Administración real de ranchos, hatos y asignación operativa de animales.</p>
             </div>
-            <span class="status-pill soft">Módulo base</span>
+            <div class="module-actions">
+              <button id="hatoRefreshBtn" type="button">Actualizar</button>
+              <span class="status-pill soft">Conectado a datos</span>
+            </div>
           </section>
 
-          <div class="module-card-grid">
-            <article class="module-feature-card"><span>⌘</span><strong>Ranchos / establos</strong><p>Catálogo de unidades productivas.</p></article>
-            <article class="module-feature-card"><span>▥</span><strong>Hatos</strong><p>Agrupación de animales por operación.</p></article>
-            <article class="module-feature-card"><span>⌖</span><strong>Corrales</strong><p>Ubicación física y manejo de lotes.</p></article>
-          </div>
+          <section class="hato-layout-grid">
+            <form id="ranchForm" class="card form-card">
+              <div class="section-heading-row">
+                <div>
+                  <p class="eyebrow">Catálogo</p>
+                  <h3>Registrar rancho / establo</h3>
+                </div>
+                <span class="status-pill soft">Rancho</span>
+              </div>
+
+              <div class="form-grid">
+                <label>
+                  Nombre del rancho *
+                  <input id="ranchName" type="text" placeholder="Ej. Rancho Principal" />
+                </label>
+
+                <label>
+                  Ubicación
+                  <input id="ranchLocation" type="text" placeholder="Ej. Querétaro" />
+                </label>
+
+                <label>
+                  Responsable / socio
+                  <input id="ranchOwner" type="text" placeholder="Ej. Socio o encargado" />
+                </label>
+              </div>
+
+              <label>
+                Observaciones
+                <textarea id="ranchNotes" placeholder="Notas administrativas del rancho"></textarea>
+              </label>
+
+              <button type="submit">Guardar rancho</button>
+              <p id="ranchMessage" class="muted"></p>
+            </form>
+
+            <form id="herdForm" class="card form-card">
+              <div class="section-heading-row">
+                <div>
+                  <p class="eyebrow">Catálogo</p>
+                  <h3>Registrar hato</h3>
+                </div>
+                <span class="status-pill soft">Hato</span>
+              </div>
+
+              <div class="form-grid">
+                <label>
+                  Rancho *
+                  <select id="herdRanchSelect">
+                    <option value="">Selecciona un rancho</option>
+                  </select>
+                </label>
+
+                <label>
+                  Nombre del hato *
+                  <input id="herdName" type="text" placeholder="Ej. Hato A" />
+                </label>
+
+                <label>
+                  Propósito / lote
+                  <input id="herdPurpose" type="text" placeholder="Ej. Producción, recría, secas" />
+                </label>
+              </div>
+
+              <label>
+                Observaciones
+                <textarea id="herdNotes" placeholder="Notas operativas del hato"></textarea>
+              </label>
+
+              <button type="submit">Guardar hato</button>
+              <p id="herdMessage" class="muted"></p>
+            </form>
+          </section>
+
+          <section id="hatoRanchoContent" class="hato-content">
+            <section class="card">
+              <p class="muted">Carga el módulo para consultar ranchos, hatos y animales asignados.</p>
+            </section>
+          </section>
         </section>
 
         <section id="produccionSection" class="hidden module-page">
@@ -293,6 +381,7 @@ document.querySelector('#app').innerHTML = `
             </div>
             <div class="module-actions">
               <button id="productionRefreshBtn" type="button">Actualizar</button>
+              <button id="productionExportCsvBtn" class="secondary-light" type="button">Exportar CSV</button>
               <span class="status-pill soft">Conectado a eventos</span>
             </div>
           </section>
@@ -481,6 +570,14 @@ const cowSearchBtn = document.querySelector('#cowSearchBtn');
 const searchMessage = document.querySelector('#searchMessage');
 const cow360Result = document.querySelector('#cow360Result');
 const globalSearchInput = document.querySelector('#globalSearchInput');
+const ranchSelect = document.querySelector('#ranchSelect');
+const herdSelect = document.querySelector('#herdSelect');
+const ranchForm = document.querySelector('#ranchForm');
+const herdForm = document.querySelector('#herdForm');
+const hatoRanchoContent = document.querySelector('#hatoRanchoContent');
+
+let ranchCatalog = [];
+let herdCatalog = [];
 
 function getTokens() {
   const rawTokens = localStorage.getItem(TOKEN_STORAGE_KEY);
@@ -591,6 +688,18 @@ function showSection(sectionName) {
 
   config.section?.classList.remove('hidden');
   config.activeButtons.forEach((button) => button?.classList.add('active'));
+
+  if (sectionName === 'dashboard') {
+    loadDashboardModule();
+  }
+
+  if (sectionName === 'registrar') {
+    loadRanchHerdOptions();
+  }
+
+  if (sectionName === 'hatoRancho') {
+    loadHatoRanchoModule();
+  }
 
   if (sectionName === 'produccion') {
     loadProductionModule();
@@ -727,6 +836,13 @@ async function handleAuthCallback() {
 }
 
 function getCowPayload() {
+  const selectedRanchOption = ranchSelect?.selectedOptions?.[0];
+  const selectedHerdOption = herdSelect?.selectedOptions?.[0];
+  const ranchId = ranchSelect?.value || '';
+  const herdId = herdSelect?.value || '';
+  const ranchName = selectedRanchOption?.dataset?.name || selectedRanchOption?.textContent || '';
+  const herdName = selectedHerdOption?.dataset?.name || selectedHerdOption?.textContent || '';
+
   return {
     type: 'cow',
     arete: document.querySelector('#arete').value.trim(),
@@ -737,7 +853,11 @@ function getCowPayload() {
     estadoProductivo: document.querySelector('#estadoProductivo').value,
     padre: document.querySelector('#padre').value.trim(),
     madre: document.querySelector('#madre').value.trim(),
-    rancho: document.querySelector('#rancho').value.trim(),
+    ranchId,
+    ranchName: ranchId ? ranchName : '',
+    herdId,
+    herdName: herdId ? herdName : '',
+    rancho: ranchId ? `${ranchName}${herdId ? ` / ${herdName}` : ''}` : '',
     observaciones: document.querySelector('#observaciones').value.trim()
   };
 }
@@ -770,6 +890,110 @@ async function getCowsAndEvents() {
   }
 
   return response.json();
+}
+
+function getCowLocationLabel(cow) {
+  if (cow.ranchName && cow.herdName) {
+    return `${cow.ranchName} / ${cow.herdName}`;
+  }
+
+  if (cow.ranchName) {
+    return cow.ranchName;
+  }
+
+  return cow.rancho || 'N/D';
+}
+
+function getItemsByType(items, type) {
+  return items.filter((item) => item.type === type);
+}
+
+function sortByName(items, field = 'name') {
+  return [...items].sort((a, b) => String(a[field] || '').localeCompare(String(b[field] || ''), 'es'));
+}
+
+async function createCatalogItem(payload) {
+  const response = await fetch(`${API_BASE_URL}/items`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders()
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error al guardar registro: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+async function deleteItemById(id) {
+  const response = await fetch(`${API_BASE_URL}/items/${id}`, {
+    method: 'DELETE',
+    headers: {
+      ...authHeaders()
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error al eliminar registro: ${response.status}`);
+  }
+}
+
+function renderRanchOptions(selectElement, ranches, placeholder = 'Selecciona un rancho') {
+  if (!selectElement) {
+    return;
+  }
+
+  const currentValue = selectElement.value;
+  selectElement.innerHTML = `
+    <option value="">${placeholder}</option>
+    ${sortByName(ranches)
+      .map((ranch) => `<option value="${ranch.id}" data-name="${ranch.name || ''}">${ranch.name || 'Rancho sin nombre'}</option>`)
+      .join('')}
+  `;
+
+  if ([...selectElement.options].some((option) => option.value === currentValue)) {
+    selectElement.value = currentValue;
+  }
+}
+
+function renderHerdOptions(selectElement, herds, selectedRanchId = '', placeholder = 'Sin hato asignado') {
+  if (!selectElement) {
+    return;
+  }
+
+  const currentValue = selectElement.value;
+  const filteredHerds = selectedRanchId ? herds.filter((herd) => herd.ranchId === selectedRanchId) : herds;
+
+  selectElement.innerHTML = `
+    <option value="">${placeholder}</option>
+    ${sortByName(filteredHerds)
+      .map((herd) => `<option value="${herd.id}" data-name="${herd.name || ''}">${herd.name || 'Hato sin nombre'}</option>`)
+      .join('')}
+  `;
+
+  if ([...selectElement.options].some((option) => option.value === currentValue)) {
+    selectElement.value = currentValue;
+  }
+}
+
+async function loadRanchHerdOptions() {
+  try {
+    const items = await getCowsAndEvents();
+    ranchCatalog = getItemsByType(items, 'ranch');
+    herdCatalog = getItemsByType(items, 'herd');
+
+    renderRanchOptions(ranchSelect, ranchCatalog, 'Sin rancho asignado');
+    renderHerdOptions(herdSelect, herdCatalog, ranchSelect?.value || '', 'Sin hato asignado');
+    renderRanchOptions(document.querySelector('#herdRanchSelect'), ranchCatalog, 'Selecciona un rancho');
+  } catch (error) {
+    console.error(error);
+    formMessage.textContent = `No se pudieron cargar ranchos/hatos: ${error.message}`;
+    formMessage.className = 'error';
+  }
 }
 
 async function createCow(event) {
@@ -869,7 +1093,7 @@ function renderCow360(cow) {
           </div>
           <h3>${cow.nombre || 'Sin nombre'} <small>${cow.arete || 'Sin arete'}</small></h3>
           <div class="identity-grid">
-            <div><span>Hato</span><strong>${cow.rancho || 'N/D'}</strong></div>
+            <div><span>Hato</span><strong>${getCowLocationLabel(cow)}</strong></div>
             <div><span>Sexo</span><strong>${cow.sexo || 'N/D'}</strong></div>
             <div><span>Raza</span><strong>${cow.raza || 'N/D'}</strong></div>
             <div><span>Estado</span><strong>${cow.estadoProductivo || 'N/D'}</strong></div>
@@ -894,8 +1118,8 @@ function renderCow360(cow) {
         </div>
 
         <div class="kpi-card">
-          <span>Rancho</span>
-          <strong>${cow.rancho || 'N/D'}</strong>
+          <span>Rancho / hato</span>
+          <strong>${getCowLocationLabel(cow)}</strong>
         </div>
       </div>
 
@@ -943,8 +1167,8 @@ function renderCow360(cow) {
           </div>
 
           <div>
-            <span>Rancho / establo</span>
-            <strong>${cow.rancho || 'N/D'}</strong>
+            <span>Rancho / hato</span>
+            <strong>${getCowLocationLabel(cow)}</strong>
           </div>
 
           <div>
@@ -1540,6 +1764,209 @@ async function loadCowCategoryEvents(cowId, category) {
 }
 
 
+function formatNumber(value) {
+  return new Intl.NumberFormat('es-MX').format(value || 0);
+}
+
+function getCowStatusSummary(cows) {
+  const active = cows.filter((cow) => String(cow.estadoProductivo || '').toLowerCase() !== 'baja').length;
+  const inactive = Math.max(cows.length - active, 0);
+
+  return { active, inactive };
+}
+
+function getProductionRecordsFromItems(items) {
+  return items
+    .filter((item) => item.type === 'cow_event' && item.eventType === 'Producción')
+    .map(normalizeProductionRecord)
+    .sort((a, b) => new Date(b.eventDate || 0) - new Date(a.eventDate || 0));
+}
+
+function getRecentEventsFromItems(items) {
+  return items
+    .filter((item) => item.type === 'cow_event')
+    .sort((a, b) => {
+      const dateA = new Date(a.eventDate || a.createdAt || 0);
+      const dateB = new Date(b.eventDate || b.createdAt || 0);
+      return dateB - dateA;
+    })
+    .slice(0, 8);
+}
+
+function renderDashboardRecentEvents(events) {
+  if (events.length === 0) {
+    return '<p class="muted">Todavía no hay eventos recientes registrados.</p>';
+  }
+
+  return `
+    <div class="dashboard-event-list">
+      ${events
+        .map((event) => `
+          <article class="dashboard-event-item">
+            <span>${event.eventType || 'Evento'}</span>
+            <div>
+              <strong>${event.cowArete || 'Sin arete'} · ${event.cowName || 'Sin nombre'}</strong>
+              <p>${formatProductionDate(event.eventDate || event.createdAt?.slice(0, 10))} · ${event.responsible || 'Responsable no definido'}</p>
+              <small>${event.description || 'Sin descripción'}</small>
+            </div>
+          </article>
+        `)
+        .join('')}
+    </div>
+  `;
+}
+
+function getLowProductionAlerts(records) {
+  const validRecords = records.filter((record) => record.liters > 0);
+
+  if (validRecords.length === 0) {
+    return [];
+  }
+
+  const average = validRecords.reduce((sum, record) => sum + record.liters, 0) / validRecords.length;
+  const threshold = average * 0.7;
+
+  return validRecords
+    .filter((record) => record.liters < threshold)
+    .sort((a, b) => a.liters - b.liters)
+    .slice(0, 6)
+    .map((record) => ({
+      ...record,
+      threshold,
+      average
+    }));
+}
+
+function renderLowProductionAlerts(alerts) {
+  if (alerts.length === 0) {
+    return '<p class="muted">No se detectaron alertas de baja producción con la regla actual.</p>';
+  }
+
+  return `
+    <div class="alert-list">
+      ${alerts
+        .map((alert) => `
+          <article class="alert-item">
+            <span>⚠</span>
+            <div>
+              <strong>${alert.cowArete} · ${alert.cowName}</strong>
+              <p>${alert.liters.toFixed(1)} L · ${formatProductionDate(alert.eventDate)}</p>
+              <small>Por debajo del 70% del promedio general (${alert.threshold.toFixed(1)} L).</small>
+            </div>
+          </article>
+        `)
+        .join('')}
+    </div>
+  `;
+}
+
+function renderDashboardProductionTrend(records) {
+  const recent = records.slice(0, 8);
+
+  if (recent.length === 0) {
+    return '<p class="muted">No hay registros productivos para mostrar tendencia.</p>';
+  }
+
+  return renderProductionChart(recent);
+}
+
+async function loadDashboardModule() {
+  const dashboardContent = document.querySelector('#dashboardContent');
+
+  if (!dashboardContent) {
+    return;
+  }
+
+  dashboardContent.innerHTML = `
+    <section class="card">
+      <p class="muted">Cargando Dashboard con datos reales...</p>
+    </section>
+  `;
+
+  try {
+    const items = await getCowsAndEvents();
+    const cows = items.filter((item) => item.type === 'cow' || item.arete);
+    const events = getRecentEventsFromItems(items);
+    const productionRecords = getProductionRecordsFromItems(items);
+    const productionSummary = summarizeProductionRecords(productionRecords);
+    const statusSummary = getCowStatusSummary(cows);
+    const alerts = getLowProductionAlerts(productionRecords);
+
+    dashboardContent.innerHTML = `
+      <section class="dashboard-kpi-grid">
+        <article class="kpi-card highlight">
+          <span>Total de vacas</span>
+          <strong>${formatNumber(cows.length)}</strong>
+        </article>
+
+        <article class="kpi-card">
+          <span>Vacas activas</span>
+          <strong>${formatNumber(statusSummary.active)}</strong>
+        </article>
+
+        <article class="kpi-card">
+          <span>Vacas inactivas / baja</span>
+          <strong>${formatNumber(statusSummary.inactive)}</strong>
+        </article>
+
+        <article class="kpi-card">
+          <span>Eventos recientes</span>
+          <strong>${formatNumber(events.length)}</strong>
+        </article>
+
+        <article class="kpi-card">
+          <span>Producción total</span>
+          <strong>${productionSummary.totalLiters.toFixed(1)} L</strong>
+        </article>
+
+        <article class="kpi-card">
+          <span>Promedio general</span>
+          <strong>${productionSummary.averageLiters.toFixed(1)} L</strong>
+        </article>
+      </section>
+
+      <section class="dashboard-layout-grid">
+        <article class="card">
+          <div class="section-heading-row">
+            <div>
+              <p class="eyebrow">Actividad</p>
+              <h3>Eventos recientes</h3>
+            </div>
+            <span class="status-pill soft">${events.length} evento(s)</span>
+          </div>
+          ${renderDashboardRecentEvents(events)}
+        </article>
+
+        <article class="card">
+          <div class="section-heading-row">
+            <div>
+              <p class="eyebrow">Alertas</p>
+              <h3>Baja producción</h3>
+              <p class="muted">Regla demo: alerta si el registro está por debajo del 70% del promedio general.</p>
+            </div>
+            <span class="status-pill soft">${alerts.length} alerta(s)</span>
+          </div>
+          ${renderLowProductionAlerts(alerts)}
+        </article>
+      </section>
+
+      <section class="card">
+        <div class="section-heading-row">
+          <div>
+            <p class="eyebrow">Producción</p>
+            <h3>Tendencia reciente</h3>
+          </div>
+          <span class="status-pill soft">Dashboard real</span>
+        </div>
+        ${renderDashboardProductionTrend(productionRecords)}
+      </section>
+    `;
+  } catch (error) {
+    console.error(error);
+    dashboardContent.innerHTML = `<section class="card"><p class="error">${error.message}</p></section>`;
+  }
+}
+
 function parseProductionLiters(value) {
   const liters = Number.parseFloat(value);
   return Number.isFinite(liters) ? liters : 0;
@@ -1757,6 +2184,61 @@ function renderProductionTable(records) {
   `;
 }
 
+function csvEscape(value) {
+  const text = String(value ?? '');
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+function buildProductionCsv(records) {
+  const headers = ['Fecha', 'Arete', 'Vaca', 'Litros', 'Turno', 'Calidad', 'Responsable', 'Descripción'];
+  const rows = records.map((record) => [
+    record.eventDate || '',
+    record.cowArete || '',
+    record.cowName || '',
+    record.liters.toFixed(1),
+    record.shift || '',
+    record.quality || '',
+    record.responsible || '',
+    record.description || ''
+  ]);
+
+  return [headers, ...rows].map((row) => row.map(csvEscape).join(',')).join('\n');
+}
+
+async function exportProductionCsv() {
+  try {
+    const items = await getCowsAndEvents();
+    const filters = getProductionFilters();
+    const allProductionRecords = items
+      .filter((item) => item.type === 'cow_event' && item.eventType === 'Producción')
+      .map(normalizeProductionRecord)
+      .sort((a, b) => new Date(b.eventDate || 0) - new Date(a.eventDate || 0));
+
+    const records = filterProductionRecords(allProductionRecords, filters);
+
+    if (records.length === 0) {
+      alert('No hay registros de producción para exportar con los filtros actuales.');
+      return;
+    }
+
+    const csv = buildProductionCsv(records);
+    const blob = new Blob([`\ufeff${csv}`], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const date = new Date().toISOString().slice(0, 10);
+
+    link.href = url;
+    link.download = `produccion_holstein_${date}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  }
+}
+
 async function loadProductionModule() {
   const productionContent = document.querySelector('#productionContent');
 
@@ -1855,6 +2337,325 @@ function clearProductionFilters() {
   loadProductionModule();
 }
 
+function getAnimalAssignmentCounts(cows) {
+  return cows.reduce((acc, cow) => {
+    if (cow.ranchId) {
+      acc.ranches[cow.ranchId] = (acc.ranches[cow.ranchId] || 0) + 1;
+    }
+
+    if (cow.herdId) {
+      acc.herds[cow.herdId] = (acc.herds[cow.herdId] || 0) + 1;
+    }
+
+    return acc;
+  }, { ranches: {}, herds: {} });
+}
+
+function renderRanchesTable(ranches, counts) {
+  if (ranches.length === 0) {
+    return '<p class="muted">No hay ranchos registrados todavía.</p>';
+  }
+
+  return `
+    <div class="catalog-table-wrap">
+      <table class="catalog-table">
+        <thead>
+          <tr>
+            <th>Rancho</th>
+            <th>Ubicación</th>
+            <th>Responsable</th>
+            <th>Animales</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sortByName(ranches)
+            .map((ranch) => `
+              <tr>
+                <td><strong>${ranch.name || 'Rancho sin nombre'}</strong><br /><span>${ranch.notes || 'Sin observaciones'}</span></td>
+                <td>${ranch.location || 'N/D'}</td>
+                <td>${ranch.owner || 'N/D'}</td>
+                <td>${counts.ranches[ranch.id] || 0}</td>
+                <td><button class="table-danger-btn" type="button" data-delete-ranch="${ranch.id}">Eliminar</button></td>
+              </tr>
+            `)
+            .join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderHerdsTable(herds, ranches, counts) {
+  if (herds.length === 0) {
+    return '<p class="muted">No hay hatos registrados todavía.</p>';
+  }
+
+  const ranchById = ranches.reduce((acc, ranch) => {
+    acc[ranch.id] = ranch;
+    return acc;
+  }, {});
+
+  return `
+    <div class="catalog-table-wrap">
+      <table class="catalog-table">
+        <thead>
+          <tr>
+            <th>Hato</th>
+            <th>Rancho</th>
+            <th>Propósito</th>
+            <th>Animales</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sortByName(herds)
+            .map((herd) => `
+              <tr>
+                <td><strong>${herd.name || 'Hato sin nombre'}</strong><br /><span>${herd.notes || 'Sin observaciones'}</span></td>
+                <td>${ranchById[herd.ranchId]?.name || herd.ranchName || 'Rancho no definido'}</td>
+                <td>${herd.purpose || 'N/D'}</td>
+                <td>${counts.herds[herd.id] || 0}</td>
+                <td><button class="table-danger-btn" type="button" data-delete-herd="${herd.id}">Eliminar</button></td>
+              </tr>
+            `)
+            .join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderAssignedAnimals(cows) {
+  const assigned = cows.filter((cow) => cow.ranchId || cow.herdId);
+
+  if (assigned.length === 0) {
+    return '<p class="muted">Todavía no hay animales asignados formalmente a rancho/hato.</p>';
+  }
+
+  return `
+    <div class="assigned-animal-list">
+      ${assigned
+        .slice(0, 12)
+        .map((cow) => `
+          <article class="assigned-animal-card">
+            <strong>${cow.arete || 'Sin arete'} · ${cow.nombre || 'Sin nombre'}</strong>
+            <span>${getCowLocationLabel(cow)}</span>
+            <small>${cow.estadoProductivo || 'Estado no definido'}</small>
+          </article>
+        `)
+        .join('')}
+    </div>
+  `;
+}
+
+async function loadHatoRanchoModule() {
+  if (!hatoRanchoContent) {
+    return;
+  }
+
+  hatoRanchoContent.innerHTML = `
+    <section class="card">
+      <p class="muted">Cargando estructura de ranchos y hatos...</p>
+    </section>
+  `;
+
+  try {
+    const items = await getCowsAndEvents();
+    const cows = items.filter((item) => item.type === 'cow' || item.arete);
+    ranchCatalog = getItemsByType(items, 'ranch');
+    herdCatalog = getItemsByType(items, 'herd');
+
+    renderRanchOptions(document.querySelector('#herdRanchSelect'), ranchCatalog, 'Selecciona un rancho');
+    renderRanchOptions(ranchSelect, ranchCatalog, 'Sin rancho asignado');
+    renderHerdOptions(herdSelect, herdCatalog, ranchSelect?.value || '', 'Sin hato asignado');
+
+    const counts = getAnimalAssignmentCounts(cows);
+    const assignedAnimals = cows.filter((cow) => cow.ranchId || cow.herdId).length;
+
+    hatoRanchoContent.innerHTML = `
+      <section class="hato-kpi-grid">
+        <article class="kpi-card highlight">
+          <span>Ranchos</span>
+          <strong>${ranchCatalog.length}</strong>
+        </article>
+
+        <article class="kpi-card">
+          <span>Hatos</span>
+          <strong>${herdCatalog.length}</strong>
+        </article>
+
+        <article class="kpi-card">
+          <span>Animales asignados</span>
+          <strong>${assignedAnimals}</strong>
+        </article>
+
+        <article class="kpi-card">
+          <span>Animales sin asignar</span>
+          <strong>${Math.max(cows.length - assignedAnimals, 0)}</strong>
+        </article>
+      </section>
+
+      <section class="hato-data-grid">
+        <article class="card">
+          <div class="section-heading-row">
+            <div>
+              <p class="eyebrow">Catálogo</p>
+              <h3>Ranchos / establos</h3>
+            </div>
+            <span class="status-pill soft">${ranchCatalog.length} registro(s)</span>
+          </div>
+          ${renderRanchesTable(ranchCatalog, counts)}
+        </article>
+
+        <article class="card">
+          <div class="section-heading-row">
+            <div>
+              <p class="eyebrow">Catálogo</p>
+              <h3>Hatos</h3>
+            </div>
+            <span class="status-pill soft">${herdCatalog.length} registro(s)</span>
+          </div>
+          ${renderHerdsTable(herdCatalog, ranchCatalog, counts)}
+        </article>
+      </section>
+
+      <section class="card">
+        <div class="section-heading-row">
+          <div>
+            <p class="eyebrow">Asignación</p>
+            <h3>Animales con rancho/hato formal</h3>
+          </div>
+          <span class="status-pill soft">${assignedAnimals} animal(es)</span>
+        </div>
+        ${renderAssignedAnimals(cows)}
+      </section>
+    `;
+
+    bindCatalogDeleteButtons();
+  } catch (error) {
+    console.error(error);
+    hatoRanchoContent.innerHTML = `<section class="card"><p class="error">${error.message}</p></section>`;
+  }
+}
+
+function bindCatalogDeleteButtons() {
+  document.querySelectorAll('[data-delete-ranch]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const confirmed = confirm('¿Seguro que deseas eliminar este rancho? Los animales ya registrados conservarán el nombre guardado.');
+
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        await deleteItemById(button.dataset.deleteRanch);
+        await loadHatoRanchoModule();
+        await loadRanchHerdOptions();
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+  });
+
+  document.querySelectorAll('[data-delete-herd]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const confirmed = confirm('¿Seguro que deseas eliminar este hato? Los animales ya registrados conservarán el nombre guardado.');
+
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        await deleteItemById(button.dataset.deleteHerd);
+        await loadHatoRanchoModule();
+        await loadRanchHerdOptions();
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+  });
+}
+
+async function createRanch(event) {
+  event.preventDefault();
+
+  const message = document.querySelector('#ranchMessage');
+  const payload = {
+    type: 'ranch',
+    name: document.querySelector('#ranchName').value.trim(),
+    location: document.querySelector('#ranchLocation').value.trim(),
+    owner: document.querySelector('#ranchOwner').value.trim(),
+    notes: document.querySelector('#ranchNotes').value.trim()
+  };
+
+  if (!payload.name) {
+    message.textContent = 'El nombre del rancho es obligatorio.';
+    message.className = 'error';
+    return;
+  }
+
+  message.textContent = 'Guardando rancho...';
+  message.className = 'muted';
+
+  try {
+    await createCatalogItem(payload);
+    ranchForm.reset();
+    message.textContent = 'Rancho registrado correctamente.';
+    message.className = 'success';
+    await loadHatoRanchoModule();
+    await loadRanchHerdOptions();
+  } catch (error) {
+    console.error(error);
+    message.textContent = error.message;
+    message.className = 'error';
+  }
+}
+
+async function createHerd(event) {
+  event.preventDefault();
+
+  const message = document.querySelector('#herdMessage');
+  const ranchSelectElement = document.querySelector('#herdRanchSelect');
+  const selectedRanch = ranchSelectElement?.selectedOptions?.[0];
+  const payload = {
+    type: 'herd',
+    ranchId: ranchSelectElement?.value || '',
+    ranchName: selectedRanch?.dataset?.name || selectedRanch?.textContent || '',
+    name: document.querySelector('#herdName').value.trim(),
+    purpose: document.querySelector('#herdPurpose').value.trim(),
+    notes: document.querySelector('#herdNotes').value.trim()
+  };
+
+  if (!payload.ranchId) {
+    message.textContent = 'Selecciona un rancho para el hato.';
+    message.className = 'error';
+    return;
+  }
+
+  if (!payload.name) {
+    message.textContent = 'El nombre del hato es obligatorio.';
+    message.className = 'error';
+    return;
+  }
+
+  message.textContent = 'Guardando hato...';
+  message.className = 'muted';
+
+  try {
+    await createCatalogItem(payload);
+    herdForm.reset();
+    message.textContent = 'Hato registrado correctamente.';
+    message.className = 'success';
+    await loadHatoRanchoModule();
+    await loadRanchHerdOptions();
+  } catch (error) {
+    console.error(error);
+    message.textContent = error.message;
+    message.className = 'error';
+  }
+}
+
 async function deleteCow(id) {
   const confirmed = confirm('¿Seguro que deseas eliminar esta vaca?');
 
@@ -1899,9 +2700,19 @@ analyticsBtn.addEventListener('click', () => showSection('analytics'));
 usuariosBtn.addEventListener('click', () => showSection('usuarios'));
 quickAddBtn.addEventListener('click', () => showSection('registrar'));
 
+document.querySelector('#dashboardRefreshBtn')?.addEventListener('click', loadDashboardModule);
 document.querySelector('#productionRefreshBtn')?.addEventListener('click', loadProductionModule);
+document.querySelector('#productionExportCsvBtn')?.addEventListener('click', exportProductionCsv);
 document.querySelector('#productionApplyFiltersBtn')?.addEventListener('click', loadProductionModule);
 document.querySelector('#productionClearFiltersBtn')?.addEventListener('click', clearProductionFilters);
+document.querySelector('#hatoRefreshBtn')?.addEventListener('click', loadHatoRanchoModule);
+
+ranchForm?.addEventListener('submit', createRanch);
+herdForm?.addEventListener('submit', createHerd);
+
+ranchSelect?.addEventListener('change', () => {
+  renderHerdOptions(herdSelect, herdCatalog, ranchSelect.value, 'Sin hato asignado');
+});
 
 document.querySelectorAll('#productionDateFrom, #productionDateTo, #productionShiftFilter').forEach((input) => {
   input?.addEventListener('change', loadProductionModule);
