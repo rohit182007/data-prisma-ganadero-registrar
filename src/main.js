@@ -663,23 +663,44 @@ function renderCow360(cow) {
 
       <div class="tab-content-360 hidden" id="tab-historial">
         <h4>Historial de eventos</h4>
-
-        <div class="timeline">
-          <div class="timeline-item">
-            <span></span>
-            <div>
-              <strong>Alta del animal</strong>
-              <p>${cow.createdAt ? new Date(cow.createdAt).toLocaleString() : 'Fecha no disponible'}</p>
-            </div>
+      
+        <form id="cowEventForm" class="event-form">
+          <div class="form-grid">
+            <label>
+              Tipo de evento
+              <select id="eventType">
+                <option value="Observación general">Observación general</option>
+                <option value="Parto">Parto</option>
+                <option value="Servicio / inseminación">Servicio / inseminación</option>
+                <option value="Vacuna">Vacuna</option>
+                <option value="Revisión veterinaria">Revisión veterinaria</option>
+                <option value="Producción">Producción</option>
+                <option value="Baja">Baja</option>
+              </select>
+            </label>
+      
+            <label>
+              Fecha del evento
+              <input id="eventDate" type="date" />
+            </label>
+      
+            <label>
+              Responsable
+              <input id="eventResponsible" type="text" placeholder="Ej. Dr. López" />
+            </label>
           </div>
-
-          <div class="timeline-item">
-            <span></span>
-            <div>
-              <strong>Registro inicial</strong>
-              <p>${cow.observaciones || 'Sin observaciones iniciales.'}</p>
-            </div>
-          </div>
+      
+          <label>
+            Descripción
+            <textarea id="eventDescription" placeholder="Describe el evento registrado"></textarea>
+          </label>
+      
+          <button type="submit">Agregar evento</button>
+          <p id="eventMessage" class="muted"></p>
+        </form>
+      
+        <div id="cowEventsList" class="timeline">
+          <p class="muted">Cargando eventos...</p>
         </div>
       </div>
 
@@ -711,6 +732,12 @@ function renderCow360(cow) {
     cow360Result.innerHTML = '';
     searchMessage.textContent = 'Vaca eliminada correctamente.';
   });
+  document.querySelector('#cowEventForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    await createCowEvent(cow);
+  });
+      
+  loadCowEvents(cow.id);
 }
 
 async function searchCow360() {
@@ -747,7 +774,108 @@ async function searchCow360() {
     searchMessage.textContent = error.message;
   }
 }
+async function createCowEvent(cow) {
+  const eventMessage = document.querySelector('#eventMessage');
 
+  const payload = {
+    type: 'cow_event',
+    cowId: cow.id,
+    cowArete: cow.arete || '',
+    cowName: cow.nombre || '',
+    eventType: document.querySelector('#eventType').value,
+    eventDate: document.querySelector('#eventDate').value || new Date().toISOString().slice(0, 10),
+    responsible: document.querySelector('#eventResponsible').value.trim(),
+    description: document.querySelector('#eventDescription').value.trim()
+  };
+
+  if (!payload.description) {
+    eventMessage.textContent = 'La descripción del evento es obligatoria.';
+    eventMessage.className = 'error';
+    return;
+  }
+
+  eventMessage.textContent = 'Guardando evento...';
+  eventMessage.className = 'muted';
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/items`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeaders()
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al guardar evento: ${response.status}`);
+    }
+
+    document.querySelector('#cowEventForm').reset();
+
+    eventMessage.textContent = 'Evento agregado correctamente.';
+    eventMessage.className = 'success';
+
+    await loadCowEvents(cow.id);
+  } catch (error) {
+    console.error(error);
+    eventMessage.textContent = error.message;
+    eventMessage.className = 'error';
+  }
+}
+
+async function loadCowEvents(cowId) {
+  const cowEventsList = document.querySelector('#cowEventsList');
+
+  try {
+    const items = await getCowsAndEvents();
+
+    const events = items
+      .filter((item) => item.type === 'cow_event' && item.cowId === cowId)
+      .sort((a, b) => {
+        const dateA = new Date(a.eventDate || a.createdAt || 0);
+        const dateB = new Date(b.eventDate || b.createdAt || 0);
+        return dateB - dateA;
+      });
+
+    if (events.length === 0) {
+      cowEventsList.innerHTML = '<p class="muted">No hay eventos registrados para esta vaca.</p>';
+      return;
+    }
+
+    cowEventsList.innerHTML = events
+      .map(
+        (event) => `
+          <div class="timeline-item">
+            <span></span>
+            <div>
+              <strong>${event.eventType || 'Evento'}</strong>
+              <p>${event.eventDate || 'Fecha no definida'} · ${event.responsible || 'Responsable no definido'}</p>
+              <p>${event.description || 'Sin descripción'}</p>
+            </div>
+          </div>
+        `
+      )
+      .join('');
+  } catch (error) {
+    console.error(error);
+    cowEventsList.innerHTML = `<p class="error">${error.message}</p>`;
+  }
+}
+
+async function getCowsAndEvents() {
+  const response = await fetch(`${API_BASE_URL}/items`, {
+    headers: {
+      ...authHeaders()
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error al cargar información: ${response.status}`);
+  }
+
+  return response.json();
+}
 async function deleteCow(id) {
   const confirmed = confirm('¿Seguro que deseas eliminar esta vaca?');
 
