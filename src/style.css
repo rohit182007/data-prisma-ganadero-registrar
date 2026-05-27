@@ -1027,3 +1027,70 @@ textarea {
   color: var(--text, #0f172a);
   font-size: 12px;
 }
+
+
+.module-page {
+  display: grid;
+  gap: 18px;
+}
+
+.module-page-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.module-page-hero h3 {
+  margin-bottom: 8px;
+  font-size: 26px;
+}
+
+.module-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.module-feature-card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.module-feature-card > span {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: var(--green-100);
+  color: var(--green-900);
+  font-size: 22px;
+  margin-bottom: 14px;
+}
+
+.module-feature-card strong {
+  display: block;
+  color: var(--text);
+  font-size: 17px;
+  margin-bottom: 8px;
+}
+
+.module-feature-card p {
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 960px) {
+  .module-page-hero {
+    flex-direction: column;
+  }
+
+  .module-card-grid {
+    grid-template-columns: 1fr;
+  }
+}

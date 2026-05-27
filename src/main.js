@@ -23,7 +23,7 @@ document.querySelector('#app').innerHTML = `
       <nav class="menu">
         <p class="menu-section">Principal</p>
 
-        <button class="menu-item ghost" type="button">
+        <button class="menu-item ghost" id="dashboardBtn" type="button">
           <span>⌂</span>
           Dashboard
         </button>
@@ -34,7 +34,7 @@ document.querySelector('#app').innerHTML = `
           <small>Vacas</small>
         </button>
 
-        <button class="menu-item ghost" type="button">
+        <button class="menu-item ghost" id="hatoRanchoBtn" type="button">
           <span>⌘</span>
           Hato y Rancho
         </button>
@@ -51,36 +51,36 @@ document.querySelector('#app').innerHTML = `
           Vista 360
         </button>
 
-        <button class="menu-item ghost" type="button">
+        <button class="menu-item ghost" id="produccionBtn" type="button">
           <span>◌</span>
           Producción
         </button>
 
-        <button class="menu-item ghost" type="button">
+        <button class="menu-item ghost" id="laboratorioBtn" type="button">
           <span>▣</span>
           Laboratorio
         </button>
 
-        <button class="menu-item ghost" type="button">
+        <button class="menu-item ghost" id="certificacionBtn" type="button">
           <span>✓</span>
           Certificación
         </button>
 
         <p class="menu-section">Gestión</p>
 
-        <button class="menu-item ghost" type="button">
+        <button class="menu-item ghost" id="reportesBtn" type="button">
           <span>◈</span>
           Reportes
         </button>
 
-        <button class="menu-item ghost" type="button">
+        <button class="menu-item ghost" id="analyticsBtn" type="button">
           <span>▤</span>
           Analytics
         </button>
 
         <p class="menu-section">Configuración</p>
 
-        <button class="menu-item ghost" type="button">
+        <button class="menu-item ghost" id="usuariosBtn" type="button">
           <span>⚙</span>
           Usuarios
         </button>
@@ -101,7 +101,7 @@ document.querySelector('#app').innerHTML = `
         </div>
 
         <div class="topbar-actions">
-          <button class="quick-add" type="button">+ Nuevo</button>
+          <button class="quick-add" id="quickAddBtn" type="button">+ Nuevo</button>
           <button class="icon-button" type="button" aria-label="Notificaciones">◔</button>
           <div class="user-chip">
             <span>AV</span>
@@ -248,6 +248,143 @@ document.querySelector('#app').innerHTML = `
             <div id="cow360Result" class="cow360-result"></div>
           </section>
         </section>
+
+        <section id="dashboardSection" class="hidden module-page">
+          <section class="card module-page-hero">
+            <div>
+              <p class="eyebrow">Resumen operativo</p>
+              <h3>Dashboard</h3>
+              <p class="muted">Vista ejecutiva del sistema ganadero: animales, producción, alertas y actividad reciente.</p>
+            </div>
+            <span class="status-pill soft">Preparado</span>
+          </section>
+
+          <div class="module-card-grid">
+            <article class="module-feature-card"><span>🐄</span><strong>Animales activos</strong><p>Resumen del hato y accesos rápidos a registros.</p></article>
+            <article class="module-feature-card"><span>◌</span><strong>Producción</strong><p>Indicadores productivos y eventos recientes.</p></article>
+            <article class="module-feature-card"><span>⚕</span><strong>Salud</strong><p>Alertas veterinarias, vacunas y revisiones.</p></article>
+            <article class="module-feature-card"><span>▤</span><strong>Analytics</strong><p>Base para métricas y reportes ejecutivos.</p></article>
+          </div>
+        </section>
+
+        <section id="hatoRanchoSection" class="hidden module-page">
+          <section class="card module-page-hero">
+            <div>
+              <p class="eyebrow">Estructura ganadera</p>
+              <h3>Hato y Rancho</h3>
+              <p class="muted">Administración de ranchos, establos, hatos, corrales y ubicación operativa de animales.</p>
+            </div>
+            <span class="status-pill soft">Módulo base</span>
+          </section>
+
+          <div class="module-card-grid">
+            <article class="module-feature-card"><span>⌘</span><strong>Ranchos / establos</strong><p>Catálogo de unidades productivas.</p></article>
+            <article class="module-feature-card"><span>▥</span><strong>Hatos</strong><p>Agrupación de animales por operación.</p></article>
+            <article class="module-feature-card"><span>⌖</span><strong>Corrales</strong><p>Ubicación física y manejo de lotes.</p></article>
+          </div>
+        </section>
+
+        <section id="produccionSection" class="hidden module-page">
+          <section class="card module-page-hero">
+            <div>
+              <p class="eyebrow">Operaciones</p>
+              <h3>Producción</h3>
+              <p class="muted">Registro y consulta de producción de leche, turnos, calidad y comportamiento productivo.</p>
+            </div>
+            <span class="status-pill soft">Conectado a eventos</span>
+          </section>
+
+          <div class="module-card-grid">
+            <article class="module-feature-card"><span>◌</span><strong>Captura diaria</strong><p>Base para registrar litros por animal y turno.</p></article>
+            <article class="module-feature-card"><span>↗</span><strong>Tendencias</strong><p>Preparado para gráficas de producción.</p></article>
+            <article class="module-feature-card"><span>✓</span><strong>Calidad</strong><p>Seguimiento de observaciones productivas.</p></article>
+          </div>
+        </section>
+
+        <section id="laboratorioSection" class="hidden module-page">
+          <section class="card module-page-hero">
+            <div>
+              <p class="eyebrow">Operaciones</p>
+              <h3>Laboratorio</h3>
+              <p class="muted">Preparado para muestras, resultados, análisis de leche, sanidad y trazabilidad técnica.</p>
+            </div>
+            <span class="status-pill soft">Pendiente integración</span>
+          </section>
+
+          <div class="module-card-grid">
+            <article class="module-feature-card"><span>▣</span><strong>Muestras</strong><p>Recepción y control de muestras por animal.</p></article>
+            <article class="module-feature-card"><span>⚗</span><strong>Resultados</strong><p>Captura de resultados de laboratorio.</p></article>
+            <article class="module-feature-card"><span>📎</span><strong>Documentos</strong><p>Adjuntos y evidencias futuras.</p></article>
+          </div>
+        </section>
+
+        <section id="certificacionSection" class="hidden module-page">
+          <section class="card module-page-hero">
+            <div>
+              <p class="eyebrow">Operaciones</p>
+              <h3>Certificación</h3>
+              <p class="muted">Seguimiento de certificaciones, pureza Holstein, evaluaciones y cumplimiento.</p>
+            </div>
+            <span class="status-pill soft">Módulo base</span>
+          </section>
+
+          <div class="module-card-grid">
+            <article class="module-feature-card"><span>✓</span><strong>Certificados</strong><p>Preparado para constancias y documentos.</p></article>
+            <article class="module-feature-card"><span>✦</span><strong>Pureza</strong><p>Base para indicadores de raza y linaje.</p></article>
+            <article class="module-feature-card"><span>◎</span><strong>Evaluación</strong><p>Conexión futura con evaluación genética.</p></article>
+          </div>
+        </section>
+
+        <section id="reportesSection" class="hidden module-page">
+          <section class="card module-page-hero">
+            <div>
+              <p class="eyebrow">Gestión</p>
+              <h3>Reportes</h3>
+              <p class="muted">Centro de reportes operativos para animales, producción, salud, reproducción y administración.</p>
+            </div>
+            <span class="status-pill soft">Preparado</span>
+          </section>
+
+          <div class="module-card-grid">
+            <article class="module-feature-card"><span>◈</span><strong>Reporte de animales</strong><p>Inventario y estado productivo.</p></article>
+            <article class="module-feature-card"><span>◌</span><strong>Reporte productivo</strong><p>Producción por fecha, turno y animal.</p></article>
+            <article class="module-feature-card"><span>⚕</span><strong>Reporte sanitario</strong><p>Vacunas y revisiones veterinarias.</p></article>
+          </div>
+        </section>
+
+        <section id="analyticsSection" class="hidden module-page">
+          <section class="card module-page-hero">
+            <div>
+              <p class="eyebrow">Gestión</p>
+              <h3>Analytics</h3>
+              <p class="muted">Indicadores avanzados, gráficas, tendencias productivas y métricas ejecutivas.</p>
+            </div>
+            <span class="status-pill soft">Próxima fase</span>
+          </section>
+
+          <div class="module-card-grid">
+            <article class="module-feature-card"><span>▤</span><strong>Producción histórica</strong><p>Gráficas por animal y hato.</p></article>
+            <article class="module-feature-card"><span>↗</span><strong>Tendencias</strong><p>Variación productiva y alertas.</p></article>
+            <article class="module-feature-card"><span>◎</span><strong>KPIs</strong><p>Resumen ejecutivo de operación.</p></article>
+          </div>
+        </section>
+
+        <section id="usuariosSection" class="hidden module-page">
+          <section class="card module-page-hero">
+            <div>
+              <p class="eyebrow">Configuración</p>
+              <h3>Usuarios</h3>
+              <p class="muted">Administración futura de usuarios, roles, permisos y acceso por módulo.</p>
+            </div>
+            <span class="status-pill soft">Cognito</span>
+          </section>
+
+          <div class="module-card-grid">
+            <article class="module-feature-card"><span>⚙</span><strong>Roles</strong><p>Admin, veterinario y supervisor.</p></article>
+            <article class="module-feature-card"><span>👤</span><strong>Usuarios</strong><p>Gestión futura conectada con Cognito.</p></article>
+            <article class="module-feature-card"><span>🔒</span><strong>Permisos</strong><p>Acceso por módulo y acción.</p></article>
+          </div>
+        </section>
       </section>
     </main>
   </div>
@@ -265,11 +402,29 @@ const moduleTitle = document.querySelector('#moduleTitle');
 const moduleSubtitle = document.querySelector('#moduleSubtitle');
 const breadcrumbCurrent = document.querySelector('#breadcrumbCurrent');
 
+const dashboardBtn = document.querySelector('#dashboardBtn');
+const vacasMenuBtn = document.querySelector('#vacasMenuBtn');
+const hatoRanchoBtn = document.querySelector('#hatoRanchoBtn');
 const registrarVacaBtn = document.querySelector('#registrarVacaBtn');
 const vista360Btn = document.querySelector('#vista360Btn');
+const produccionBtn = document.querySelector('#produccionBtn');
+const laboratorioBtn = document.querySelector('#laboratorioBtn');
+const certificacionBtn = document.querySelector('#certificacionBtn');
+const reportesBtn = document.querySelector('#reportesBtn');
+const analyticsBtn = document.querySelector('#analyticsBtn');
+const usuariosBtn = document.querySelector('#usuariosBtn');
+const quickAddBtn = document.querySelector('#quickAddBtn');
 
 const registrarSection = document.querySelector('#registrarSection');
 const vista360Section = document.querySelector('#vista360Section');
+const dashboardSection = document.querySelector('#dashboardSection');
+const hatoRanchoSection = document.querySelector('#hatoRanchoSection');
+const produccionSection = document.querySelector('#produccionSection');
+const laboratorioSection = document.querySelector('#laboratorioSection');
+const certificacionSection = document.querySelector('#certificacionSection');
+const reportesSection = document.querySelector('#reportesSection');
+const analyticsSection = document.querySelector('#analyticsSection');
+const usuariosSection = document.querySelector('#usuariosSection');
 
 const cowSearchInput = document.querySelector('#cowSearchInput');
 const cowSearchBtn = document.querySelector('#cowSearchBtn');
@@ -297,30 +452,95 @@ function authHeaders() {
 }
 
 function showSection(sectionName) {
-  if (sectionName === 'registrar') {
-    moduleTitle.textContent = 'Registrar Vaca';
-    moduleSubtitle.textContent = 'Alta de animales Holstein dentro del sistema ganadero.';
-    breadcrumbCurrent.textContent = 'Registrar';
+  const pageConfig = {
+    dashboard: {
+      title: 'Dashboard',
+      subtitle: 'Resumen ejecutivo del sistema Holstein.',
+      breadcrumb: 'Dashboard',
+      section: dashboardSection,
+      activeButtons: [dashboardBtn]
+    },
+    registrar: {
+      title: 'Registrar Vaca',
+      subtitle: 'Alta de animales Holstein dentro del sistema ganadero.',
+      breadcrumb: 'Registrar',
+      section: registrarSection,
+      activeButtons: [vacasMenuBtn, registrarVacaBtn]
+    },
+    vista360: {
+      title: 'Vista 360',
+      subtitle: 'Consulta integral de una vaca por arete o nombre.',
+      breadcrumb: 'Ficha 360',
+      section: vista360Section,
+      activeButtons: [vacasMenuBtn, vista360Btn]
+    },
+    hatoRancho: {
+      title: 'Hato y Rancho',
+      subtitle: 'Administración de ranchos, hatos, corrales y estructura ganadera.',
+      breadcrumb: 'Hato y Rancho',
+      section: hatoRanchoSection,
+      activeButtons: [hatoRanchoBtn]
+    },
+    produccion: {
+      title: 'Producción',
+      subtitle: 'Registro y análisis de producción lechera por animal, fecha y turno.',
+      breadcrumb: 'Producción',
+      section: produccionSection,
+      activeButtons: [produccionBtn]
+    },
+    laboratorio: {
+      title: 'Laboratorio',
+      subtitle: 'Control de muestras, resultados y trazabilidad técnica.',
+      breadcrumb: 'Laboratorio',
+      section: laboratorioSection,
+      activeButtons: [laboratorioBtn]
+    },
+    certificacion: {
+      title: 'Certificación',
+      subtitle: 'Seguimiento de certificaciones, pureza, linaje y evaluación.',
+      breadcrumb: 'Certificación',
+      section: certificacionSection,
+      activeButtons: [certificacionBtn]
+    },
+    reportes: {
+      title: 'Reportes',
+      subtitle: 'Reportes operativos y administrativos del sistema ganadero.',
+      breadcrumb: 'Reportes',
+      section: reportesSection,
+      activeButtons: [reportesBtn]
+    },
+    analytics: {
+      title: 'Analytics',
+      subtitle: 'Indicadores avanzados, tendencias y análisis ejecutivo.',
+      breadcrumb: 'Analytics',
+      section: analyticsSection,
+      activeButtons: [analyticsBtn]
+    },
+    usuarios: {
+      title: 'Usuarios',
+      subtitle: 'Administración futura de usuarios, roles y permisos del sistema.',
+      breadcrumb: 'Usuarios',
+      section: usuariosSection,
+      activeButtons: [usuariosBtn]
+    }
+  };
 
-    registrarSection.classList.remove('hidden');
-    vista360Section.classList.add('hidden');
+  const config = pageConfig[sectionName] || pageConfig.dashboard;
 
-    registrarVacaBtn.classList.add('active');
-    vista360Btn.classList.remove('active');
-    return;
-  }
+  moduleTitle.textContent = config.title;
+  moduleSubtitle.textContent = config.subtitle;
+  breadcrumbCurrent.textContent = config.breadcrumb;
 
-  if (sectionName === 'vista360') {
-    moduleTitle.textContent = 'Vista 360';
-    moduleSubtitle.textContent = 'Consulta integral de una vaca por arete o nombre.';
-    breadcrumbCurrent.textContent = 'Ficha 360';
+  Object.values(pageConfig).forEach((page) => {
+    page.section?.classList.add('hidden');
+  });
 
-    registrarSection.classList.add('hidden');
-    vista360Section.classList.remove('hidden');
+  document.querySelectorAll('.menu-item, .submenu-item').forEach((button) => {
+    button.classList.remove('active');
+  });
 
-    registrarVacaBtn.classList.remove('active');
-    vista360Btn.classList.add('active');
-  }
+  config.section?.classList.remove('hidden');
+  config.activeButtons.forEach((button) => button?.classList.add('active'));
 }
 
 function updateAuthUI() {
@@ -1296,8 +1516,18 @@ loginBtn.addEventListener('click', () => {
 
 logoutBtn.addEventListener('click', logout);
 
+dashboardBtn.addEventListener('click', () => showSection('dashboard'));
+vacasMenuBtn.addEventListener('click', () => showSection('vista360'));
+hatoRanchoBtn.addEventListener('click', () => showSection('hatoRancho'));
 registrarVacaBtn.addEventListener('click', () => showSection('registrar'));
 vista360Btn.addEventListener('click', () => showSection('vista360'));
+produccionBtn.addEventListener('click', () => showSection('produccion'));
+laboratorioBtn.addEventListener('click', () => showSection('laboratorio'));
+certificacionBtn.addEventListener('click', () => showSection('certificacion'));
+reportesBtn.addEventListener('click', () => showSection('reportes'));
+analyticsBtn.addEventListener('click', () => showSection('analytics'));
+usuariosBtn.addEventListener('click', () => showSection('usuarios'));
+quickAddBtn.addEventListener('click', () => showSection('registrar'));
 
 cowForm.addEventListener('submit', createCow);
 cowSearchBtn.addEventListener('click', searchCow360);
