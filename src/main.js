@@ -284,21 +284,24 @@ document.querySelector('#app').innerHTML = `
           </div>
         </section>
 
-        <section id="produccionSection" class="hidden module-page">
-          <section class="card module-page-hero">
+        <section id="produccionSection" class="hidden module-page production-page">
+          <section class="card module-page-hero production-hero">
             <div>
               <p class="eyebrow">Operaciones</p>
               <h3>Producción</h3>
-              <p class="muted">Registro y consulta de producción de leche, turnos, calidad y comportamiento productivo.</p>
+              <p class="muted">Resumen global de producción de leche construido con los eventos registrados en Ficha 360.</p>
             </div>
-            <span class="status-pill soft">Conectado a eventos</span>
+            <div class="production-hero-actions">
+              <button id="refreshProductionBtn" type="button" class="secondary light">Actualizar</button>
+              <span class="status-pill soft">Conectado a eventos</span>
+            </div>
           </section>
 
-          <div class="module-card-grid">
-            <article class="module-feature-card"><span>◌</span><strong>Captura diaria</strong><p>Base para registrar litros por animal y turno.</p></article>
-            <article class="module-feature-card"><span>↗</span><strong>Tendencias</strong><p>Preparado para gráficas de producción.</p></article>
-            <article class="module-feature-card"><span>✓</span><strong>Calidad</strong><p>Seguimiento de observaciones productivas.</p></article>
-          </div>
+          <section id="productionModuleContent" class="production-module-content">
+            <section class="card">
+              <p class="muted">Abre este módulo para cargar los indicadores de producción.</p>
+            </section>
+          </section>
         </section>
 
         <section id="laboratorioSection" class="hidden module-page">
@@ -431,6 +434,8 @@ const cowSearchBtn = document.querySelector('#cowSearchBtn');
 const searchMessage = document.querySelector('#searchMessage');
 const cow360Result = document.querySelector('#cow360Result');
 const globalSearchInput = document.querySelector('#globalSearchInput');
+const refreshProductionBtn = document.querySelector('#refreshProductionBtn');
+const productionModuleContent = document.querySelector('#productionModuleContent');
 
 function getTokens() {
   const rawTokens = localStorage.getItem(TOKEN_STORAGE_KEY);
@@ -541,6 +546,10 @@ function showSection(sectionName) {
 
   config.section?.classList.remove('hidden');
   config.activeButtons.forEach((button) => button?.classList.add('active'));
+
+  if (sectionName === 'produccion') {
+    renderGlobalProductionModule();
+  }
 }
 
 function updateAuthUI() {
@@ -1369,6 +1378,7 @@ async function createCowEvent(cow) {
     await loadCowCategoryEvents(cow.id, 'production');
     await loadCowCategoryEvents(cow.id, 'reproduction');
     await loadCowCategoryEvents(cow.id, 'health');
+    await renderGlobalProductionModule();
   } catch (error) {
     console.error(error);
     eventMessage.textContent = error.message;
@@ -1485,6 +1495,272 @@ async function loadCowCategoryEvents(cowId, category) {
   }
 }
 
+
+function getProductionLiters(event) {
+  const rawValue = event.details?.liters ?? event.liters ?? '';
+  const value = Number(rawValue);
+  return Number.isFinite(value) ? value : 0;
+}
+
+function formatNumber(value, decimals = 1) {
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) {
+    return '0';
+  }
+
+  return number.toLocaleString('es-MX', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
+}
+
+function formatDate(value) {
+  if (!value) {
+    return 'N/D';
+  }
+
+  const date = new Date(`${value}T00:00:00`);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleDateString('es-MX', {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit'
+  });
+}
+
+function getProductionEvents(items) {
+  return items
+    .filter((item) => item.type === 'cow_event' && item.eventType === 'Producción')
+    .map((event) => ({
+      ...event,
+      litersValue: getProductionLiters(event)
+    }))
+    .sort((a, b) => {
+      const dateA = new Date(a.eventDate || a.createdAt || 0);
+      const dateB = new Date(b.eventDate || b.createdAt || 0);
+      return dateB - dateA;
+    });
+}
+
+function calculateProductionSummary(events) {
+  const totalRecords = events.length;
+  const eventsWithLiters = events.filter((event) => event.litersValue > 0);
+  const totalLiters = eventsWithLiters.reduce((sum, event) => sum + event.litersValue, 0);
+  const averageLiters = eventsWithLiters.length ? totalLiters / eventsWithLiters.length : 0;
+  const latestEvent = events[0];
+
+  const byCow = new Map();
+
+  eventsWithLiters.forEach((event) => {
+    const key = event.cowId || event.cowArete || event.cowName || 'sin-id';
+    const current = byCow.get(key) || {
+      cowId: event.cowId,
+      cowArete: event.cowArete || 'Sin arete',
+      cowName: event.cowName || 'Sin nombre',
+      totalLiters: 0,
+      recordCount: 0,
+      lastDate: event.eventDate || event.createdAt || ''
+    };
+
+    current.totalLiters += event.litersValue;
+    current.recordCount += 1;
+
+    const currentDate = new Date(current.lastDate || 0);
+    const eventDate = new Date(event.eventDate || event.createdAt || 0);
+
+    if (eventDate > currentDate) {
+      current.lastDate = event.eventDate || event.createdAt || '';
+    }
+
+    byCow.set(key, current);
+  });
+
+  const topCows = [...byCow.values()]
+    .sort((a, b) => b.totalLiters - a.totalLiters)
+    .slice(0, 5);
+
+  return {
+    totalRecords,
+    eventsWithLiters: eventsWithLiters.length,
+    totalLiters,
+    averageLiters,
+    latestEvent,
+    topCows
+  };
+}
+
+function renderProductionBars(events) {
+  const datedEvents = events
+    .filter((event) => event.litersValue > 0)
+    .slice(0, 8)
+    .reverse();
+
+  if (datedEvents.length === 0) {
+    return '<p class="muted">Aún no hay litros capturados para generar tendencia visual.</p>';
+  }
+
+  const maxLiters = Math.max(...datedEvents.map((event) => event.litersValue), 1);
+
+  return `
+    <div class="production-bars">
+      ${datedEvents
+        .map((event) => {
+          const height = Math.max(10, Math.round((event.litersValue / maxLiters) * 100));
+          return `
+            <div class="production-bar-item">
+              <div class="production-bar-track">
+                <div class="production-bar-fill" style="height: ${height}%"></div>
+              </div>
+              <strong>${formatNumber(event.litersValue, 1)}</strong>
+              <span>${formatDate(event.eventDate)}</span>
+            </div>
+          `;
+        })
+        .join('')}
+    </div>
+  `;
+}
+
+function renderTopProductionCows(topCows) {
+  if (topCows.length === 0) {
+    return '<p class="muted">No hay producción con litros capturados por vaca.</p>';
+  }
+
+  return `
+    <div class="production-ranking">
+      ${topCows
+        .map((cow, index) => `
+          <div class="production-ranking-row">
+            <span>${index + 1}</span>
+            <div>
+              <strong>${cow.cowArete} · ${cow.cowName}</strong>
+              <small>${cow.recordCount} registro(s) · último: ${formatDate(cow.lastDate)}</small>
+            </div>
+            <b>${formatNumber(cow.totalLiters, 1)} L</b>
+          </div>
+        `)
+        .join('')}
+    </div>
+  `;
+}
+
+function renderRecentProductionEvents(events) {
+  const recentEvents = events.slice(0, 8);
+
+  if (recentEvents.length === 0) {
+    return '<p class="muted">No hay eventos de producción registrados todavía.</p>';
+  }
+
+  return `
+    <div class="production-table">
+      <div class="production-table-header">
+        <span>Fecha</span>
+        <span>Vaca</span>
+        <span>Litros</span>
+        <span>Turno / calidad</span>
+      </div>
+      ${recentEvents
+        .map((event) => `
+          <div class="production-table-row">
+            <span>${formatDate(event.eventDate)}</span>
+            <span>${event.cowArete || 'Sin arete'} · ${event.cowName || 'Sin nombre'}</span>
+            <strong>${event.litersValue > 0 ? `${formatNumber(event.litersValue, 1)} L` : 'N/D'}</strong>
+            <span>${event.details?.shift || 'Sin turno'} · ${event.details?.quality || 'Sin calidad'}</span>
+          </div>
+        `)
+        .join('')}
+    </div>
+  `;
+}
+
+async function renderGlobalProductionModule() {
+  if (!productionModuleContent) {
+    return;
+  }
+
+  productionModuleContent.innerHTML = `
+    <section class="card">
+      <p class="muted">Cargando producción global...</p>
+    </section>
+  `;
+
+  try {
+    const items = await getCowsAndEvents();
+    const productionEvents = getProductionEvents(items);
+    const summary = calculateProductionSummary(productionEvents);
+
+    productionModuleContent.innerHTML = `
+      <section class="production-summary-grid">
+        <article class="production-kpi-card highlight">
+          <span>Total litros capturados</span>
+          <strong>${formatNumber(summary.totalLiters, 1)} L</strong>
+          <p>${summary.eventsWithLiters} registro(s) con litros</p>
+        </article>
+
+        <article class="production-kpi-card">
+          <span>Promedio por registro</span>
+          <strong>${formatNumber(summary.averageLiters, 1)} L</strong>
+          <p>Calculado sobre eventos con litros</p>
+        </article>
+
+        <article class="production-kpi-card">
+          <span>Eventos de producción</span>
+          <strong>${summary.totalRecords}</strong>
+          <p>Total de eventos tipo Producción</p>
+        </article>
+
+        <article class="production-kpi-card">
+          <span>Último registro</span>
+          <strong>${summary.latestEvent ? formatDate(summary.latestEvent.eventDate) : 'N/D'}</strong>
+          <p>${summary.latestEvent ? `${summary.latestEvent.cowArete || 'Sin arete'} · ${summary.latestEvent.cowName || 'Sin nombre'}` : 'Sin registros'}</p>
+        </article>
+      </section>
+
+      <section class="production-dashboard-grid">
+        <article class="card production-chart-card">
+          <div class="section-heading-row compact">
+            <div>
+              <p class="eyebrow">Tendencia reciente</p>
+              <h3>Últimos registros con litros</h3>
+            </div>
+            <span class="status-pill soft">HTML/CSS</span>
+          </div>
+          ${renderProductionBars(productionEvents)}
+        </article>
+
+        <article class="card production-ranking-card">
+          <div class="section-heading-row compact">
+            <div>
+              <p class="eyebrow">Ranking</p>
+              <h3>Top vacas por litros</h3>
+            </div>
+          </div>
+          ${renderTopProductionCows(summary.topCows)}
+        </article>
+      </section>
+
+      <section class="card production-recent-card">
+        <div class="section-heading-row compact">
+          <div>
+            <p class="eyebrow">Actividad reciente</p>
+            <h3>Últimos eventos productivos</h3>
+            <p class="muted">Estos registros vienen de eventos tipo Producción capturados desde Ficha 360.</p>
+          </div>
+        </div>
+        ${renderRecentProductionEvents(productionEvents)}
+      </section>
+    `;
+  } catch (error) {
+    console.error(error);
+    productionModuleContent.innerHTML = `<section class="card"><p class="error">${error.message}</p></section>`;
+  }
+}
+
 async function deleteCow(id) {
   const confirmed = confirm('¿Seguro que deseas eliminar esta vaca?');
 
@@ -1522,6 +1798,7 @@ hatoRanchoBtn.addEventListener('click', () => showSection('hatoRancho'));
 registrarVacaBtn.addEventListener('click', () => showSection('registrar'));
 vista360Btn.addEventListener('click', () => showSection('vista360'));
 produccionBtn.addEventListener('click', () => showSection('produccion'));
+refreshProductionBtn?.addEventListener('click', renderGlobalProductionModule);
 laboratorioBtn.addEventListener('click', () => showSection('laboratorio'));
 certificacionBtn.addEventListener('click', () => showSection('certificacion'));
 reportesBtn.addEventListener('click', () => showSection('reportes'));
