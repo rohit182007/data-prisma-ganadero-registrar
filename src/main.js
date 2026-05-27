@@ -284,22 +284,69 @@ document.querySelector('#app').innerHTML = `
           </div>
         </section>
 
-        <section id="produccionSection" class="hidden module-page production-page">
-          <section class="card module-page-hero production-hero">
+        <section id="produccionSection" class="hidden module-page">
+          <section class="card module-page-hero">
             <div>
               <p class="eyebrow">Operaciones</p>
               <h3>Producción</h3>
-              <p class="muted">Resumen global de producción de leche construido con los eventos registrados en Ficha 360.</p>
+              <p class="muted">Consulta global de producción de leche por vaca, fecha, turno y calidad.</p>
             </div>
-            <div class="production-hero-actions">
-              <button id="refreshProductionBtn" type="button" class="secondary light">Actualizar</button>
+            <div class="module-actions">
+              <button id="productionRefreshBtn" type="button">Actualizar</button>
               <span class="status-pill soft">Conectado a eventos</span>
             </div>
           </section>
 
-          <section id="productionModuleContent" class="production-module-content">
+          <section class="card production-filters-card">
+            <div class="section-heading-row">
+              <div>
+                <p class="eyebrow">Filtros</p>
+                <h3>Filtrar registros de producción</h3>
+              </div>
+              <span class="status-pill soft">Fecha / vaca / turno</span>
+            </div>
+
+            <div class="production-filters-grid">
+              <label>
+                Desde
+                <input id="productionDateFrom" type="date" />
+              </label>
+
+              <label>
+                Hasta
+                <input id="productionDateTo" type="date" />
+              </label>
+
+              <label>
+                Vaca / arete
+                <input id="productionCowFilter" type="search" placeholder="Ej. MX-001 o Luna" />
+              </label>
+
+              <label>
+                Turno
+                <select id="productionShiftFilter">
+                  <option value="">Todos</option>
+                  <option value="Mañana">Mañana</option>
+                  <option value="Tarde">Tarde</option>
+                  <option value="Noche">Noche</option>
+                </select>
+              </label>
+
+              <label>
+                Calidad
+                <input id="productionQualityFilter" type="search" placeholder="Ej. buena, normal" />
+              </label>
+            </div>
+
+            <div class="filter-actions">
+              <button id="productionApplyFiltersBtn" type="button">Aplicar filtros</button>
+              <button id="productionClearFiltersBtn" class="secondary-light" type="button">Limpiar filtros</button>
+            </div>
+          </section>
+
+          <section id="productionContent" class="production-content">
             <section class="card">
-              <p class="muted">Abre este módulo para cargar los indicadores de producción.</p>
+              <p class="muted">Carga el módulo para consultar los registros de producción.</p>
             </section>
           </section>
         </section>
@@ -434,8 +481,6 @@ const cowSearchBtn = document.querySelector('#cowSearchBtn');
 const searchMessage = document.querySelector('#searchMessage');
 const cow360Result = document.querySelector('#cow360Result');
 const globalSearchInput = document.querySelector('#globalSearchInput');
-const refreshProductionBtn = document.querySelector('#refreshProductionBtn');
-const productionModuleContent = document.querySelector('#productionModuleContent');
 
 function getTokens() {
   const rawTokens = localStorage.getItem(TOKEN_STORAGE_KEY);
@@ -548,7 +593,7 @@ function showSection(sectionName) {
   config.activeButtons.forEach((button) => button?.classList.add('active'));
 
   if (sectionName === 'produccion') {
-    renderGlobalProductionModule();
+    loadProductionModule();
   }
 }
 
@@ -1378,7 +1423,6 @@ async function createCowEvent(cow) {
     await loadCowCategoryEvents(cow.id, 'production');
     await loadCowCategoryEvents(cow.id, 'reproduction');
     await loadCowCategoryEvents(cow.id, 'health');
-    await renderGlobalProductionModule();
   } catch (error) {
     console.error(error);
     eventMessage.textContent = error.message;
@@ -1496,34 +1540,20 @@ async function loadCowCategoryEvents(cowId, category) {
 }
 
 
-function getProductionLiters(event) {
-  const rawValue = event.details?.liters ?? event.liters ?? '';
-  const value = Number(rawValue);
-  return Number.isFinite(value) ? value : 0;
+function parseProductionLiters(value) {
+  const liters = Number.parseFloat(value);
+  return Number.isFinite(liters) ? liters : 0;
 }
 
-function formatNumber(value, decimals = 1) {
-  const number = Number(value);
-
-  if (!Number.isFinite(number)) {
-    return '0';
-  }
-
-  return number.toLocaleString('es-MX', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
-  });
-}
-
-function formatDate(value) {
-  if (!value) {
+function formatProductionDate(dateValue) {
+  if (!dateValue) {
     return 'N/D';
   }
 
-  const date = new Date(`${value}T00:00:00`);
+  const date = new Date(`${dateValue}T00:00:00`);
 
   if (Number.isNaN(date.getTime())) {
-    return value;
+    return dateValue;
   }
 
   return date.toLocaleDateString('es-MX', {
@@ -1533,91 +1563,125 @@ function formatDate(value) {
   });
 }
 
-function getProductionEvents(items) {
-  return items
-    .filter((item) => item.type === 'cow_event' && item.eventType === 'Producción')
-    .map((event) => ({
-      ...event,
-      litersValue: getProductionLiters(event)
-    }))
-    .sort((a, b) => {
-      const dateA = new Date(a.eventDate || a.createdAt || 0);
-      const dateB = new Date(b.eventDate || b.createdAt || 0);
-      return dateB - dateA;
-    });
+function getProductionFilters() {
+  return {
+    dateFrom: document.querySelector('#productionDateFrom')?.value || '',
+    dateTo: document.querySelector('#productionDateTo')?.value || '',
+    cow: (document.querySelector('#productionCowFilter')?.value || '').trim().toLowerCase(),
+    shift: document.querySelector('#productionShiftFilter')?.value || '',
+    quality: (document.querySelector('#productionQualityFilter')?.value || '').trim().toLowerCase()
+  };
 }
 
-function calculateProductionSummary(events) {
-  const totalRecords = events.length;
-  const eventsWithLiters = events.filter((event) => event.litersValue > 0);
-  const totalLiters = eventsWithLiters.reduce((sum, event) => sum + event.litersValue, 0);
-  const averageLiters = eventsWithLiters.length ? totalLiters / eventsWithLiters.length : 0;
-  const latestEvent = events[0];
+function normalizeProductionRecord(event) {
+  const details = event.details || {};
 
-  const byCow = new Map();
+  return {
+    id: event.id,
+    cowId: event.cowId || '',
+    cowArete: event.cowArete || 'Sin arete',
+    cowName: event.cowName || 'Sin nombre',
+    eventDate: event.eventDate || event.createdAt?.slice(0, 10) || '',
+    responsible: event.responsible || 'Responsable no definido',
+    description: event.description || 'Sin descripción',
+    liters: parseProductionLiters(details.liters),
+    shift: details.shift || 'Sin turno',
+    quality: details.quality || 'Sin calidad'
+  };
+}
 
-  eventsWithLiters.forEach((event) => {
-    const key = event.cowId || event.cowArete || event.cowName || 'sin-id';
-    const current = byCow.get(key) || {
-      cowId: event.cowId,
-      cowArete: event.cowArete || 'Sin arete',
-      cowName: event.cowName || 'Sin nombre',
-      totalLiters: 0,
-      recordCount: 0,
-      lastDate: event.eventDate || event.createdAt || ''
-    };
+function filterProductionRecords(records, filters) {
+  return records.filter((record) => {
+    const date = record.eventDate || '';
+    const cowText = `${record.cowArete} ${record.cowName}`.toLowerCase();
+    const qualityText = String(record.quality || '').toLowerCase();
 
-    current.totalLiters += event.litersValue;
-    current.recordCount += 1;
-
-    const currentDate = new Date(current.lastDate || 0);
-    const eventDate = new Date(event.eventDate || event.createdAt || 0);
-
-    if (eventDate > currentDate) {
-      current.lastDate = event.eventDate || event.createdAt || '';
+    if (filters.dateFrom && date < filters.dateFrom) {
+      return false;
     }
 
-    byCow.set(key, current);
-  });
+    if (filters.dateTo && date > filters.dateTo) {
+      return false;
+    }
 
-  const topCows = [...byCow.values()]
-    .sort((a, b) => b.totalLiters - a.totalLiters)
+    if (filters.cow && !cowText.includes(filters.cow)) {
+      return false;
+    }
+
+    if (filters.shift && record.shift !== filters.shift) {
+      return false;
+    }
+
+    if (filters.quality && !qualityText.includes(filters.quality)) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
+function summarizeProductionRecords(records) {
+  const totalRecords = records.length;
+  const totalLiters = records.reduce((sum, record) => sum + record.liters, 0);
+  const averageLiters = totalRecords > 0 ? totalLiters / totalRecords : 0;
+  const latestRecord = [...records].sort((a, b) => new Date(b.eventDate || 0) - new Date(a.eventDate || 0))[0];
+
+  const byCow = records.reduce((acc, record) => {
+    const key = `${record.cowArete} — ${record.cowName}`;
+
+    if (!acc[key]) {
+      acc[key] = {
+        cowLabel: key,
+        records: 0,
+        liters: 0
+      };
+    }
+
+    acc[key].records += 1;
+    acc[key].liters += record.liters;
+    return acc;
+  }, {});
+
+  const topCows = Object.values(byCow)
+    .sort((a, b) => b.liters - a.liters)
     .slice(0, 5);
 
   return {
     totalRecords,
-    eventsWithLiters: eventsWithLiters.length,
     totalLiters,
     averageLiters,
-    latestEvent,
+    latestRecord,
     topCows
   };
 }
 
-function renderProductionBars(events) {
-  const datedEvents = events
-    .filter((event) => event.litersValue > 0)
-    .slice(0, 8)
-    .reverse();
-
-  if (datedEvents.length === 0) {
-    return '<p class="muted">Aún no hay litros capturados para generar tendencia visual.</p>';
+function renderProductionChart(records) {
+  if (records.length === 0) {
+    return '<p class="muted">No hay datos suficientes para graficar.</p>';
   }
 
-  const maxLiters = Math.max(...datedEvents.map((event) => event.litersValue), 1);
+  const groupedByDate = records.reduce((acc, record) => {
+    const date = record.eventDate || 'Sin fecha';
+    acc[date] = (acc[date] || 0) + record.liters;
+    return acc;
+  }, {});
+
+  const points = Object.entries(groupedByDate)
+    .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
+    .slice(-12);
+
+  const maxLiters = Math.max(...points.map(([, liters]) => liters), 1);
 
   return `
-    <div class="production-bars">
-      ${datedEvents
-        .map((event) => {
-          const height = Math.max(10, Math.round((event.litersValue / maxLiters) * 100));
+    <div class="production-chart">
+      ${points
+        .map(([date, liters]) => {
+          const height = Math.max(8, Math.round((liters / maxLiters) * 120));
           return `
-            <div class="production-bar-item">
-              <div class="production-bar-track">
-                <div class="production-bar-fill" style="height: ${height}%"></div>
-              </div>
-              <strong>${formatNumber(event.litersValue, 1)}</strong>
-              <span>${formatDate(event.eventDate)}</span>
+            <div class="production-bar-wrap">
+              <span class="production-bar-value">${liters.toFixed(1)} L</span>
+              <div class="production-bar" style="height: ${height}px"></div>
+              <small>${formatProductionDate(date).replace(' de ', ' ')}</small>
             </div>
           `;
         })
@@ -1628,113 +1692,133 @@ function renderProductionBars(events) {
 
 function renderTopProductionCows(topCows) {
   if (topCows.length === 0) {
-    return '<p class="muted">No hay producción con litros capturados por vaca.</p>';
+    return '<p class="muted">No hay vacas con producción capturada para los filtros seleccionados.</p>';
   }
 
+  const maxLiters = Math.max(...topCows.map((cow) => cow.liters), 1);
+
   return `
-    <div class="production-ranking">
+    <div class="top-cow-list">
       ${topCows
-        .map((cow, index) => `
-          <div class="production-ranking-row">
-            <span>${index + 1}</span>
-            <div>
-              <strong>${cow.cowArete} · ${cow.cowName}</strong>
-              <small>${cow.recordCount} registro(s) · último: ${formatDate(cow.lastDate)}</small>
+        .map((cow, index) => {
+          const width = Math.max(6, Math.round((cow.liters / maxLiters) * 100));
+          return `
+            <div class="top-cow-item">
+              <div>
+                <strong>${index + 1}. ${cow.cowLabel}</strong>
+                <span>${cow.records} registro(s) · ${cow.liters.toFixed(1)} L</span>
+              </div>
+              <div class="top-cow-track"><span style="width: ${width}%"></span></div>
             </div>
-            <b>${formatNumber(cow.totalLiters, 1)} L</b>
-          </div>
-        `)
+          `;
+        })
         .join('')}
     </div>
   `;
 }
 
-function renderRecentProductionEvents(events) {
-  const recentEvents = events.slice(0, 8);
-
-  if (recentEvents.length === 0) {
-    return '<p class="muted">No hay eventos de producción registrados todavía.</p>';
+function renderProductionTable(records) {
+  if (records.length === 0) {
+    return '<p class="muted">No hay registros de producción que coincidan con los filtros.</p>';
   }
 
   return `
-    <div class="production-table">
-      <div class="production-table-header">
-        <span>Fecha</span>
-        <span>Vaca</span>
-        <span>Litros</span>
-        <span>Turno / calidad</span>
-      </div>
-      ${recentEvents
-        .map((event) => `
-          <div class="production-table-row">
-            <span>${formatDate(event.eventDate)}</span>
-            <span>${event.cowArete || 'Sin arete'} · ${event.cowName || 'Sin nombre'}</span>
-            <strong>${event.litersValue > 0 ? `${formatNumber(event.litersValue, 1)} L` : 'N/D'}</strong>
-            <span>${event.details?.shift || 'Sin turno'} · ${event.details?.quality || 'Sin calidad'}</span>
-          </div>
-        `)
-        .join('')}
+    <div class="production-table-wrap">
+      <table class="production-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Vaca</th>
+            <th>Litros</th>
+            <th>Turno</th>
+            <th>Calidad</th>
+            <th>Responsable</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${records
+            .slice(0, 50)
+            .map((record) => `
+              <tr>
+                <td>${formatProductionDate(record.eventDate)}</td>
+                <td><strong>${record.cowArete}</strong><br /><span>${record.cowName}</span></td>
+                <td>${record.liters.toFixed(1)} L</td>
+                <td>${record.shift}</td>
+                <td>${record.quality}</td>
+                <td>${record.responsible}</td>
+                <td>${record.description}</td>
+              </tr>
+            `)
+            .join('')}
+        </tbody>
+      </table>
     </div>
   `;
 }
 
-async function renderGlobalProductionModule() {
-  if (!productionModuleContent) {
+async function loadProductionModule() {
+  const productionContent = document.querySelector('#productionContent');
+
+  if (!productionContent) {
     return;
   }
 
-  productionModuleContent.innerHTML = `
+  productionContent.innerHTML = `
     <section class="card">
-      <p class="muted">Cargando producción global...</p>
+      <p class="muted">Cargando registros de producción...</p>
     </section>
   `;
 
   try {
     const items = await getCowsAndEvents();
-    const productionEvents = getProductionEvents(items);
-    const summary = calculateProductionSummary(productionEvents);
+    const filters = getProductionFilters();
 
-    productionModuleContent.innerHTML = `
-      <section class="production-summary-grid">
-        <article class="production-kpi-card highlight">
-          <span>Total litros capturados</span>
-          <strong>${formatNumber(summary.totalLiters, 1)} L</strong>
-          <p>${summary.eventsWithLiters} registro(s) con litros</p>
+    const allProductionRecords = items
+      .filter((item) => item.type === 'cow_event' && item.eventType === 'Producción')
+      .map(normalizeProductionRecord)
+      .sort((a, b) => new Date(b.eventDate || 0) - new Date(a.eventDate || 0));
+
+    const records = filterProductionRecords(allProductionRecords, filters);
+    const summary = summarizeProductionRecords(records);
+
+    productionContent.innerHTML = `
+      <section class="production-kpi-grid">
+        <article class="kpi-card highlight">
+          <span>Total litros</span>
+          <strong>${summary.totalLiters.toFixed(1)} L</strong>
         </article>
 
-        <article class="production-kpi-card">
+        <article class="kpi-card">
           <span>Promedio por registro</span>
-          <strong>${formatNumber(summary.averageLiters, 1)} L</strong>
-          <p>Calculado sobre eventos con litros</p>
+          <strong>${summary.averageLiters.toFixed(1)} L</strong>
         </article>
 
-        <article class="production-kpi-card">
-          <span>Eventos de producción</span>
+        <article class="kpi-card">
+          <span>Registros filtrados</span>
           <strong>${summary.totalRecords}</strong>
-          <p>Total de eventos tipo Producción</p>
         </article>
 
-        <article class="production-kpi-card">
+        <article class="kpi-card">
           <span>Último registro</span>
-          <strong>${summary.latestEvent ? formatDate(summary.latestEvent.eventDate) : 'N/D'}</strong>
-          <p>${summary.latestEvent ? `${summary.latestEvent.cowArete || 'Sin arete'} · ${summary.latestEvent.cowName || 'Sin nombre'}` : 'Sin registros'}</p>
+          <strong>${summary.latestRecord ? formatProductionDate(summary.latestRecord.eventDate) : 'N/D'}</strong>
         </article>
       </section>
 
-      <section class="production-dashboard-grid">
+      <section class="production-layout-grid">
         <article class="card production-chart-card">
-          <div class="section-heading-row compact">
+          <div class="section-heading-row">
             <div>
-              <p class="eyebrow">Tendencia reciente</p>
-              <h3>Últimos registros con litros</h3>
+              <p class="eyebrow">Tendencia</p>
+              <h3>Producción por fecha</h3>
             </div>
-            <span class="status-pill soft">HTML/CSS</span>
+            <span class="status-pill soft">Últimos 12 días con datos</span>
           </div>
-          ${renderProductionBars(productionEvents)}
+          ${renderProductionChart(records)}
         </article>
 
-        <article class="card production-ranking-card">
-          <div class="section-heading-row compact">
+        <article class="card">
+          <div class="section-heading-row">
             <div>
               <p class="eyebrow">Ranking</p>
               <h3>Top vacas por litros</h3>
@@ -1744,21 +1828,31 @@ async function renderGlobalProductionModule() {
         </article>
       </section>
 
-      <section class="card production-recent-card">
-        <div class="section-heading-row compact">
+      <section class="card">
+        <div class="section-heading-row">
           <div>
-            <p class="eyebrow">Actividad reciente</p>
-            <h3>Últimos eventos productivos</h3>
-            <p class="muted">Estos registros vienen de eventos tipo Producción capturados desde Ficha 360.</p>
+            <p class="eyebrow">Detalle</p>
+            <h3>Tabla de registros de producción</h3>
+            <p class="muted">Mostrando hasta 50 registros recientes según los filtros seleccionados.</p>
           </div>
+          <span class="status-pill soft">${records.length} resultado(s)</span>
         </div>
-        ${renderRecentProductionEvents(productionEvents)}
+        ${renderProductionTable(records)}
       </section>
     `;
   } catch (error) {
     console.error(error);
-    productionModuleContent.innerHTML = `<section class="card"><p class="error">${error.message}</p></section>`;
+    productionContent.innerHTML = `<section class="card"><p class="error">${error.message}</p></section>`;
   }
+}
+
+function clearProductionFilters() {
+  document.querySelector('#productionDateFrom').value = '';
+  document.querySelector('#productionDateTo').value = '';
+  document.querySelector('#productionCowFilter').value = '';
+  document.querySelector('#productionShiftFilter').value = '';
+  document.querySelector('#productionQualityFilter').value = '';
+  loadProductionModule();
 }
 
 async function deleteCow(id) {
@@ -1798,13 +1892,28 @@ hatoRanchoBtn.addEventListener('click', () => showSection('hatoRancho'));
 registrarVacaBtn.addEventListener('click', () => showSection('registrar'));
 vista360Btn.addEventListener('click', () => showSection('vista360'));
 produccionBtn.addEventListener('click', () => showSection('produccion'));
-refreshProductionBtn?.addEventListener('click', renderGlobalProductionModule);
 laboratorioBtn.addEventListener('click', () => showSection('laboratorio'));
 certificacionBtn.addEventListener('click', () => showSection('certificacion'));
 reportesBtn.addEventListener('click', () => showSection('reportes'));
 analyticsBtn.addEventListener('click', () => showSection('analytics'));
 usuariosBtn.addEventListener('click', () => showSection('usuarios'));
 quickAddBtn.addEventListener('click', () => showSection('registrar'));
+
+document.querySelector('#productionRefreshBtn')?.addEventListener('click', loadProductionModule);
+document.querySelector('#productionApplyFiltersBtn')?.addEventListener('click', loadProductionModule);
+document.querySelector('#productionClearFiltersBtn')?.addEventListener('click', clearProductionFilters);
+
+document.querySelectorAll('#productionDateFrom, #productionDateTo, #productionShiftFilter').forEach((input) => {
+  input?.addEventListener('change', loadProductionModule);
+});
+
+document.querySelectorAll('#productionCowFilter, #productionQualityFilter').forEach((input) => {
+  input?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      loadProductionModule();
+    }
+  });
+});
 
 cowForm.addEventListener('submit', createCow);
 cowSearchBtn.addEventListener('click', searchCow360);
