@@ -788,6 +788,8 @@ function renderCow360(cow) {
             </label>
           </div>
 
+          <div id="eventDynamicFields" class="dynamic-fields"></div>
+
           <label>
             Descripción
             <textarea id="eventDescription" placeholder="Describe el evento registrado"></textarea>
@@ -830,6 +832,10 @@ function renderCow360(cow) {
     cow360Result.innerHTML = '';
     searchMessage.textContent = 'Vaca eliminada correctamente.';
   });
+
+  renderEventDynamicFields();
+
+  document.querySelector('#eventType').addEventListener('change', renderEventDynamicFields);
 
   document.querySelector('#cowEventForm').addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -877,6 +883,224 @@ async function searchCow360() {
   }
 }
 
+
+function renderEventDynamicFields() {
+  const eventType = document.querySelector('#eventType')?.value;
+  const container = document.querySelector('#eventDynamicFields');
+
+  if (!container) {
+    return;
+  }
+
+  const templates = {
+    Producción: `
+      <div class="form-grid">
+        <label>
+          Litros producidos
+          <input id="eventLiters" type="number" min="0" step="0.1" placeholder="Ej. 28.5" />
+        </label>
+
+        <label>
+          Turno
+          <select id="eventShift">
+            <option value="">Seleccionar</option>
+            <option value="Mañana">Mañana</option>
+            <option value="Tarde">Tarde</option>
+            <option value="Noche">Noche</option>
+          </select>
+        </label>
+
+        <label>
+          Calidad
+          <input id="eventQuality" type="text" placeholder="Ej. Buena, normal, alta grasa" />
+        </label>
+      </div>
+    `,
+
+    Vacuna: `
+      <div class="form-grid">
+        <label>
+          Producto / vacuna
+          <input id="eventVaccineProduct" type="text" placeholder="Ej. Brucelosis" />
+        </label>
+
+        <label>
+          Dosis
+          <input id="eventDose" type="text" placeholder="Ej. 2 ml" />
+        </label>
+
+        <label>
+          Lote
+          <input id="eventBatch" type="text" placeholder="Ej. L-2026-01" />
+        </label>
+      </div>
+    `,
+
+    Parto: `
+      <div class="form-grid">
+        <label>
+          Sexo de cría
+          <select id="eventCalfSex">
+            <option value="">Seleccionar</option>
+            <option value="Hembra">Hembra</option>
+            <option value="Macho">Macho</option>
+          </select>
+        </label>
+
+        <label>
+          Arete de cría
+          <input id="eventCalfTag" type="text" placeholder="Ej. MX-CRIA-001" />
+        </label>
+
+        <label>
+          Resultado del parto
+          <input id="eventBirthResult" type="text" placeholder="Ej. Normal, asistido, complicado" />
+        </label>
+      </div>
+    `,
+
+    'Servicio / inseminación': `
+      <div class="form-grid">
+        <label>
+          Toro / semen
+          <input id="eventBull" type="text" placeholder="Ej. Toro 123 / semen ABC" />
+        </label>
+
+        <label>
+          Técnico
+          <input id="eventTechnician" type="text" placeholder="Ej. Dr. López" />
+        </label>
+
+        <label>
+          Resultado
+          <input id="eventServiceResult" type="text" placeholder="Ej. Pendiente, positivo, repetir" />
+        </label>
+      </div>
+    `,
+
+    'Revisión veterinaria': `
+      <div class="form-grid">
+        <label>
+          Diagnóstico
+          <input id="eventDiagnosis" type="text" placeholder="Ej. Mastitis leve" />
+        </label>
+
+        <label>
+          Tratamiento
+          <input id="eventTreatment" type="text" placeholder="Ej. Antibiótico 3 días" />
+        </label>
+
+        <label>
+          Medicamento
+          <input id="eventMedicine" type="text" placeholder="Ej. Producto aplicado" />
+        </label>
+      </div>
+    `,
+
+    Baja: `
+      <div class="form-grid">
+        <label>
+          Motivo de baja
+          <input id="eventExitReason" type="text" placeholder="Ej. Venta, muerte, descarte" />
+        </label>
+      </div>
+    `
+  };
+
+  container.innerHTML = templates[eventType] || '';
+}
+
+function getEventDetails() {
+  const eventType = document.querySelector('#eventType')?.value;
+
+  if (eventType === 'Producción') {
+    return {
+      liters: document.querySelector('#eventLiters')?.value || '',
+      shift: document.querySelector('#eventShift')?.value || '',
+      quality: document.querySelector('#eventQuality')?.value.trim() || ''
+    };
+  }
+
+  if (eventType === 'Vacuna') {
+    return {
+      product: document.querySelector('#eventVaccineProduct')?.value.trim() || '',
+      dose: document.querySelector('#eventDose')?.value.trim() || '',
+      batch: document.querySelector('#eventBatch')?.value.trim() || ''
+    };
+  }
+
+  if (eventType === 'Parto') {
+    return {
+      calfSex: document.querySelector('#eventCalfSex')?.value || '',
+      calfTag: document.querySelector('#eventCalfTag')?.value.trim() || '',
+      birthResult: document.querySelector('#eventBirthResult')?.value.trim() || ''
+    };
+  }
+
+  if (eventType === 'Servicio / inseminación') {
+    return {
+      bull: document.querySelector('#eventBull')?.value.trim() || '',
+      technician: document.querySelector('#eventTechnician')?.value.trim() || '',
+      serviceResult: document.querySelector('#eventServiceResult')?.value.trim() || ''
+    };
+  }
+
+  if (eventType === 'Revisión veterinaria') {
+    return {
+      diagnosis: document.querySelector('#eventDiagnosis')?.value.trim() || '',
+      treatment: document.querySelector('#eventTreatment')?.value.trim() || '',
+      medicine: document.querySelector('#eventMedicine')?.value.trim() || ''
+    };
+  }
+
+  if (eventType === 'Baja') {
+    return {
+      exitReason: document.querySelector('#eventExitReason')?.value.trim() || ''
+    };
+  }
+
+  return {};
+}
+
+function renderEventDetails(event) {
+  const details = event.details || {};
+
+  const labels = {
+    liters: 'Litros',
+    shift: 'Turno',
+    quality: 'Calidad',
+    product: 'Producto',
+    dose: 'Dosis',
+    batch: 'Lote',
+    calfSex: 'Sexo cría',
+    calfTag: 'Arete cría',
+    birthResult: 'Resultado parto',
+    bull: 'Toro / semen',
+    technician: 'Técnico',
+    serviceResult: 'Resultado servicio',
+    diagnosis: 'Diagnóstico',
+    treatment: 'Tratamiento',
+    medicine: 'Medicamento',
+    exitReason: 'Motivo de baja'
+  };
+
+  const entries = Object.entries(details).filter(([, value]) => value !== undefined && value !== null && String(value).trim() !== '');
+
+  if (entries.length === 0) {
+    return '';
+  }
+
+  return `
+    <div class="event-detail-list">
+      ${entries
+        .map(([key, value]) => `
+          <span><strong>${labels[key] || key}:</strong> ${value}</span>
+        `)
+        .join('')}
+    </div>
+  `;
+}
+
 async function createCowEvent(cow) {
   const eventMessage = document.querySelector('#eventMessage');
 
@@ -888,7 +1112,8 @@ async function createCowEvent(cow) {
     eventType: document.querySelector('#eventType').value,
     eventDate: document.querySelector('#eventDate').value || new Date().toISOString().slice(0, 10),
     responsible: document.querySelector('#eventResponsible').value.trim(),
-    description: document.querySelector('#eventDescription').value.trim()
+    description: document.querySelector('#eventDescription').value.trim(),
+    details: getEventDetails()
   };
 
   if (!payload.description) {
@@ -915,6 +1140,7 @@ async function createCowEvent(cow) {
     }
 
     document.querySelector('#cowEventForm').reset();
+    renderEventDynamicFields();
 
     eventMessage.textContent = 'Evento agregado correctamente.';
     eventMessage.className = 'success';
@@ -958,6 +1184,7 @@ async function loadCowEvents(cowId) {
               <strong>${event.eventType || 'Evento'}</strong>
               <p>${event.eventDate || 'Fecha no definida'} · ${event.responsible || 'Responsable no definido'}</p>
               <p>${event.description || 'Sin descripción'}</p>
+              ${renderEventDetails(event)}
             </div>
           </div>
         `
@@ -1026,6 +1253,7 @@ async function loadCowCategoryEvents(cowId, category) {
               <strong>${event.eventType || 'Evento'}</strong>
               <p>${event.eventDate || 'Fecha no definida'} · ${event.responsible || 'Responsable no definido'}</p>
               <p>${event.description || 'Sin descripción'}</p>
+              ${renderEventDetails(event)}
             </div>
           </div>
         `

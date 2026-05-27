@@ -990,3 +990,40 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+
+.dynamic-fields {
+  margin: 8px 0 14px;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 18px;
+}
+
+.dynamic-fields:empty {
+  display: none;
+}
+
+.event-detail-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.event-detail-list span {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  background: white;
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: var(--muted, #64748b);
+  font-size: 12px;
+}
+
+.event-detail-list strong {
+  color: var(--text, #0f172a);
+  font-size: 12px;
+}
