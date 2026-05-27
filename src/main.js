@@ -19,19 +19,19 @@ document.querySelector('#app').innerHTML = `
           <p>Sistema Ganadero</p>
         </div>
       </div>
-    
+
       <nav class="menu">
         <p class="menu-section">Módulos</p>
-      
+
         <button class="menu-item active" id="vacasMenuBtn">
           <span>🐄</span>
           Vacas
         </button>
-      
+
         <button class="submenu-item active" id="registrarVacaBtn">
           Registrar
         </button>
-      
+
         <button class="submenu-item" id="vista360Btn">
           Vista 360
         </button>
@@ -59,18 +59,18 @@ document.querySelector('#app').innerHTML = `
         <section id="registrarSection" class="content-grid">
           <form id="cowForm" class="card form-card">
             <h3>Registrar vaca</h3>
-      
+
             <div class="form-grid">
               <label>
                 Número de arete *
                 <input id="arete" type="text" placeholder="Ej. MX-001" required />
               </label>
-      
+
               <label>
                 Nombre / identificación
                 <input id="nombre" type="text" placeholder="Ej. Luna" />
               </label>
-      
+
               <label>
                 Raza
                 <select id="raza">
@@ -80,12 +80,12 @@ document.querySelector('#app').innerHTML = `
                   <option value="Otra">Otra</option>
                 </select>
               </label>
-      
+
               <label>
                 Fecha de nacimiento
                 <input id="fechaNacimiento" type="date" />
               </label>
-      
+
               <label>
                 Sexo
                 <select id="sexo">
@@ -93,7 +93,7 @@ document.querySelector('#app').innerHTML = `
                   <option value="Macho">Macho</option>
                 </select>
               </label>
-      
+
               <label>
                 Estado productivo
                 <select id="estadoProductivo">
@@ -104,32 +104,32 @@ document.querySelector('#app').innerHTML = `
                   <option value="Baja">Baja</option>
                 </select>
               </label>
-      
+
               <label>
                 Padre
                 <input id="padre" type="text" placeholder="Ej. Toro 123" />
               </label>
-      
+
               <label>
                 Madre
                 <input id="madre" type="text" placeholder="Ej. Vaca 456" />
               </label>
-      
+
               <label>
                 Rancho / establo
                 <input id="rancho" type="text" placeholder="Ej. Rancho Principal" />
               </label>
             </div>
-      
+
             <label>
               Observaciones
               <textarea id="observaciones" placeholder="Notas clínicas, productivas o administrativas"></textarea>
             </label>
-      
+
             <button type="submit" id="submitBtn">Guardar vaca</button>
             <p id="formMessage"></p>
           </form>
-      
+
           <section class="card helper-card">
             <h3>Registro individual</h3>
             <p>
@@ -140,19 +140,19 @@ document.querySelector('#app').innerHTML = `
             </p>
           </section>
         </section>
-      
+
         <section id="vista360Section" class="hidden">
           <section class="card">
             <h3>Vista 360 de vaca</h3>
             <p class="muted">
               Busca una vaca por número de arete o nombre para consultar su información completa.
             </p>
-      
+
             <div class="search-row">
               <input id="cowSearchInput" type="text" placeholder="Buscar por arete o nombre. Ej. MX-001 o Luna" />
               <button id="cowSearchBtn" type="button">Buscar</button>
             </div>
-      
+
             <div id="searchMessage" class="muted"></div>
             <div id="cow360Result" class="cow360-result"></div>
           </section>
@@ -166,8 +166,10 @@ const authStatus = document.querySelector('#authStatus');
 const loginBtn = document.querySelector('#loginBtn');
 const logoutBtn = document.querySelector('#logoutBtn');
 const appContent = document.querySelector('#appContent');
+
 const cowForm = document.querySelector('#cowForm');
 const formMessage = document.querySelector('#formMessage');
+
 const moduleTitle = document.querySelector('#moduleTitle');
 const moduleSubtitle = document.querySelector('#moduleSubtitle');
 
@@ -200,6 +202,7 @@ function authHeaders() {
   const token = getAuthToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
+
 function showSection(sectionName) {
   if (sectionName === 'registrar') {
     moduleTitle.textContent = 'Registrar Vaca';
@@ -318,12 +321,12 @@ async function handleAuthCallback() {
   const verifier = sessionStorage.getItem(PKCE_STORAGE_KEY);
 
   if (!verifier) {
-  window.history.replaceState({}, document.title, REDIRECT_URI);
-  localStorage.removeItem(TOKEN_STORAGE_KEY);
-  sessionStorage.removeItem(PKCE_STORAGE_KEY);
-  await login();
-  return;
-}
+    window.history.replaceState({}, document.title, REDIRECT_URI);
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    sessionStorage.removeItem(PKCE_STORAGE_KEY);
+    await login();
+    return;
+  }
 
   const body = new URLSearchParams({
     grant_type: 'authorization_code',
@@ -385,7 +388,20 @@ async function getCows() {
 
   return items.filter((item) => item.type === 'cow' || item.arete);
 }
-      
+
+async function getCowsAndEvents() {
+  const response = await fetch(`${API_BASE_URL}/items`, {
+    headers: {
+      ...authHeaders()
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error al cargar información: ${response.status}`);
+  }
+
+  return response.json();
+}
 
 async function createCow(event) {
   event.preventDefault();
@@ -432,6 +448,7 @@ async function createCow(event) {
     formMessage.className = 'error';
   }
 }
+
 function calculateAge(fechaNacimiento) {
   if (!fechaNacimiento) {
     return 'N/D';
@@ -466,6 +483,7 @@ function calculateAge(fechaNacimiento) {
 
   return `${years} años ${months} meses`;
 }
+
 function renderCow360(cow) {
   cow360Result.innerHTML = `
     <div class="cow-profile">
@@ -591,79 +609,28 @@ function renderCow360(cow) {
 
       <div class="tab-content-360 hidden" id="tab-produccion">
         <h4>Producción</h4>
-
-        <div class="placeholder-grid">
-          <div class="placeholder-card">
-            <span>Producción diaria</span>
-            <strong>Pendiente</strong>
-            <p>Se conectará con el módulo de Control de Producción.</p>
-          </div>
-
-          <div class="placeholder-card">
-            <span>Promedio mensual</span>
-            <strong>Pendiente</strong>
-            <p>Litros promedio por periodo.</p>
-          </div>
-
-          <div class="placeholder-card">
-            <span>Último pesaje / medición</span>
-            <strong>Pendiente</strong>
-            <p>Registro de producción más reciente.</p>
-          </div>
+        <div id="productionEventsList" class="timeline">
+          <p class="muted">Cargando eventos de producción...</p>
         </div>
       </div>
 
       <div class="tab-content-360 hidden" id="tab-reproduccion">
         <h4>Reproducción</h4>
-
-        <div class="placeholder-grid">
-          <div class="placeholder-card">
-            <span>Estado reproductivo</span>
-            <strong>Pendiente</strong>
-            <p>Gestante, abierta, servida o en revisión.</p>
-          </div>
-
-          <div class="placeholder-card">
-            <span>Último parto</span>
-            <strong>Pendiente</strong>
-            <p>Fecha del último parto registrado.</p>
-          </div>
-
-          <div class="placeholder-card">
-            <span>Servicios</span>
-            <strong>Pendiente</strong>
-            <p>Historial de inseminaciones o monta.</p>
-          </div>
+        <div id="reproductionEventsList" class="timeline">
+          <p class="muted">Cargando eventos reproductivos...</p>
         </div>
       </div>
 
       <div class="tab-content-360 hidden" id="tab-salud">
         <h4>Salud</h4>
-
-        <div class="placeholder-grid">
-          <div class="placeholder-card">
-            <span>Última revisión veterinaria</span>
-            <strong>Pendiente</strong>
-            <p>Se conectará con el módulo veterinario.</p>
-          </div>
-
-          <div class="placeholder-card">
-            <span>Vacunas</span>
-            <strong>Pendiente</strong>
-            <p>Calendario sanitario del animal.</p>
-          </div>
-
-          <div class="placeholder-card">
-            <span>Tratamientos</span>
-            <strong>Pendiente</strong>
-            <p>Historial clínico y medicamentos aplicados.</p>
-          </div>
+        <div id="healthEventsList" class="timeline">
+          <p class="muted">Cargando eventos de salud...</p>
         </div>
       </div>
 
       <div class="tab-content-360 hidden" id="tab-historial">
         <h4>Historial de eventos</h4>
-      
+
         <form id="cowEventForm" class="event-form">
           <div class="form-grid">
             <label>
@@ -678,27 +645,27 @@ function renderCow360(cow) {
                 <option value="Baja">Baja</option>
               </select>
             </label>
-      
+
             <label>
               Fecha del evento
               <input id="eventDate" type="date" />
             </label>
-      
+
             <label>
               Responsable
               <input id="eventResponsible" type="text" placeholder="Ej. Dr. López" />
             </label>
           </div>
-      
+
           <label>
             Descripción
             <textarea id="eventDescription" placeholder="Describe el evento registrado"></textarea>
           </label>
-      
+
           <button type="submit">Agregar evento</button>
           <p id="eventMessage" class="muted"></p>
         </form>
-      
+
         <div id="cowEventsList" class="timeline">
           <p class="muted">Cargando eventos...</p>
         </div>
@@ -732,12 +699,16 @@ function renderCow360(cow) {
     cow360Result.innerHTML = '';
     searchMessage.textContent = 'Vaca eliminada correctamente.';
   });
+
   document.querySelector('#cowEventForm').addEventListener('submit', async (event) => {
     event.preventDefault();
     await createCowEvent(cow);
   });
-      
+
   loadCowEvents(cow.id);
+  loadCowCategoryEvents(cow.id, 'production');
+  loadCowCategoryEvents(cow.id, 'reproduction');
+  loadCowCategoryEvents(cow.id, 'health');
 }
 
 async function searchCow360() {
@@ -774,6 +745,7 @@ async function searchCow360() {
     searchMessage.textContent = error.message;
   }
 }
+
 async function createCowEvent(cow) {
   const eventMessage = document.querySelector('#eventMessage');
 
@@ -817,6 +789,9 @@ async function createCowEvent(cow) {
     eventMessage.className = 'success';
 
     await loadCowEvents(cow.id);
+    await loadCowCategoryEvents(cow.id, 'production');
+    await loadCowCategoryEvents(cow.id, 'reproduction');
+    await loadCowCategoryEvents(cow.id, 'health');
   } catch (error) {
     console.error(error);
     eventMessage.textContent = error.message;
@@ -863,19 +838,74 @@ async function loadCowEvents(cowId) {
   }
 }
 
-async function getCowsAndEvents() {
-  const response = await fetch(`${API_BASE_URL}/items`, {
-    headers: {
-      ...authHeaders()
+async function loadCowCategoryEvents(cowId, category) {
+  const categoryConfig = {
+    production: {
+      elementId: 'productionEventsList',
+      types: ['Producción'],
+      emptyMessage: 'No hay eventos de producción registrados para esta vaca.'
+    },
+    reproduction: {
+      elementId: 'reproductionEventsList',
+      types: ['Parto', 'Servicio / inseminación'],
+      emptyMessage: 'No hay eventos reproductivos registrados para esta vaca.'
+    },
+    health: {
+      elementId: 'healthEventsList',
+      types: ['Vacuna', 'Revisión veterinaria'],
+      emptyMessage: 'No hay eventos de salud registrados para esta vaca.'
     }
-  });
+  };
 
-  if (!response.ok) {
-    throw new Error(`Error al cargar información: ${response.status}`);
+  const config = categoryConfig[category];
+  const targetElement = document.querySelector(`#${config.elementId}`);
+
+  if (!targetElement) {
+    return;
   }
 
-  return response.json();
+  try {
+    const items = await getCowsAndEvents();
+
+    const events = items
+      .filter((item) => {
+        return (
+          item.type === 'cow_event' &&
+          item.cowId === cowId &&
+          config.types.includes(item.eventType)
+        );
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.eventDate || a.createdAt || 0);
+        const dateB = new Date(b.eventDate || b.createdAt || 0);
+        return dateB - dateA;
+      });
+
+    if (events.length === 0) {
+      targetElement.innerHTML = `<p class="muted">${config.emptyMessage}</p>`;
+      return;
+    }
+
+    targetElement.innerHTML = events
+      .map(
+        (event) => `
+          <div class="timeline-item">
+            <span></span>
+            <div>
+              <strong>${event.eventType || 'Evento'}</strong>
+              <p>${event.eventDate || 'Fecha no definida'} · ${event.responsible || 'Responsable no definido'}</p>
+              <p>${event.description || 'Sin descripción'}</p>
+            </div>
+          </div>
+        `
+      )
+      .join('');
+  } catch (error) {
+    console.error(error);
+    targetElement.innerHTML = `<p class="error">${error.message}</p>`;
+  }
 }
+
 async function deleteCow(id) {
   const confirmed = confirm('¿Seguro que deseas eliminar esta vaca?');
 
@@ -894,24 +924,24 @@ async function deleteCow(id) {
     if (!response.ok) {
       throw new Error(`Error al eliminar vaca: ${response.status}`);
     }
-
   } catch (error) {
     console.error(error);
     alert(error.message);
   }
 }
 
-registrarVacaBtn.addEventListener('click', () => showSection('registrar'));
-vista360Btn.addEventListener('click', () => showSection('vista360'));
-logoutBtn.addEventListener('click', logout);
-cowForm.addEventListener('submit', createCow);
-cowSearchBtn.addEventListener('click', searchCow360);
 loginBtn.addEventListener('click', () => {
   sessionStorage.removeItem(MANUAL_LOGOUT_KEY);
   login();
 });
 
 logoutBtn.addEventListener('click', logout);
+
+registrarVacaBtn.addEventListener('click', () => showSection('registrar'));
+vista360Btn.addEventListener('click', () => showSection('vista360'));
+
+cowForm.addEventListener('submit', createCow);
+cowSearchBtn.addEventListener('click', searchCow360);
 
 cowSearchInput.addEventListener('keydown', (event) => {
   if (event.key === 'Enter') {
