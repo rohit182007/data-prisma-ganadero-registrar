@@ -7,6 +7,7 @@ const COGNITO_DOMAIN = import.meta.env.VITE_COGNITO_DOMAIN;
 const REDIRECT_URI = `${window.location.origin}/`;
 const TOKEN_STORAGE_KEY = 'demo_auth_tokens';
 const PKCE_STORAGE_KEY = 'demo_pkce_verifier';
+const MANUAL_LOGOUT_KEY = 'demo_manual_logout';
 
 document.querySelector('#app').innerHTML = `
   <div class="app-shell">
@@ -38,6 +39,7 @@ document.querySelector('#app').innerHTML = `
 
       <div class="sidebar-footer">
         <p id="authStatus">Revisando sesión...</p>
+        <button id="loginBtn" class="secondary hidden">Iniciar sesión</button>
         <button id="logoutBtn" class="secondary hidden">Cerrar sesión</button>
       </div>
     </aside>
@@ -161,6 +163,7 @@ document.querySelector('#app').innerHTML = `
 `;
 
 const authStatus = document.querySelector('#authStatus');
+const loginBtn = document.querySelector('#loginBtn');
 const logoutBtn = document.querySelector('#logoutBtn');
 const appContent = document.querySelector('#appContent');
 const cowForm = document.querySelector('#cowForm');
@@ -224,14 +227,28 @@ function showSection(sectionName) {
 
 function updateAuthUI() {
   if (isLoggedIn()) {
+    sessionStorage.removeItem(MANUAL_LOGOUT_KEY);
+
     authStatus.textContent = 'Sesión iniciada';
+    loginBtn.classList.add('hidden');
     logoutBtn.classList.remove('hidden');
     appContent.classList.remove('hidden');
     showSection('registrar');
     return;
   }
 
+  const wasManualLogout = sessionStorage.getItem(MANUAL_LOGOUT_KEY) === 'true';
+
+  if (wasManualLogout) {
+    authStatus.textContent = 'Sesión cerrada';
+    loginBtn.classList.remove('hidden');
+    logoutBtn.classList.add('hidden');
+    appContent.classList.add('hidden');
+    return;
+  }
+
   authStatus.textContent = 'Redirigiendo a inicio de sesión...';
+  loginBtn.classList.add('hidden');
   logoutBtn.classList.add('hidden');
   appContent.classList.add('hidden');
 
@@ -280,6 +297,7 @@ async function login() {
 function logout() {
   localStorage.removeItem(TOKEN_STORAGE_KEY);
   sessionStorage.removeItem(PKCE_STORAGE_KEY);
+  sessionStorage.setItem(MANUAL_LOGOUT_KEY, 'true');
 
   const params = new URLSearchParams({
     client_id: COGNITO_CLIENT_ID,
@@ -757,9 +775,15 @@ async function deleteCow(id) {
 
 registrarVacaBtn.addEventListener('click', () => showSection('registrar'));
 vista360Btn.addEventListener('click', () => showSection('vista360'));
-
+logoutBtn.addEventListener('click', logout);
 cowForm.addEventListener('submit', createCow);
 cowSearchBtn.addEventListener('click', searchCow360);
+loginBtn.addEventListener('click', () => {
+  sessionStorage.removeItem(MANUAL_LOGOUT_KEY);
+  login();
+});
+
+logoutBtn.addEventListener('click', logout);
 
 cowSearchInput.addEventListener('keydown', (event) => {
   if (event.key === 'Enter') {
