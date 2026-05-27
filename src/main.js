@@ -98,12 +98,15 @@ function updateAuthUI() {
     logoutBtn.classList.remove('hidden');
     appContent.classList.remove('hidden');
     loadItems();
-  } else {
-    authStatus.textContent = 'Inicia sesión para usar la app';
-    loginBtn.classList.remove('hidden');
-    logoutBtn.classList.add('hidden');
-    appContent.classList.add('hidden');
+    return;
   }
+
+  authStatus.textContent = 'Redirigiendo a inicio de sesión...';
+  loginBtn.classList.add('hidden');
+  logoutBtn.classList.add('hidden');
+  appContent.classList.add('hidden');
+
+  login();
 }
 
 async function login() {
