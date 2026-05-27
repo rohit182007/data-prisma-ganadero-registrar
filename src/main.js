@@ -414,73 +414,255 @@ async function createCow(event) {
     formMessage.className = 'error';
   }
 }
+function calculateAge(fechaNacimiento) {
+  if (!fechaNacimiento) {
+    return 'N/D';
+  }
+
+  const birthDate = new Date(fechaNacimiento);
+  const today = new Date();
+
+  if (Number.isNaN(birthDate.getTime())) {
+    return 'N/D';
+  }
+
+  let years = today.getFullYear() - birthDate.getFullYear();
+  let months = today.getMonth() - birthDate.getMonth();
+
+  if (today.getDate() < birthDate.getDate()) {
+    months -= 1;
+  }
+
+  if (months < 0) {
+    years -= 1;
+    months += 12;
+  }
+
+  if (years <= 0) {
+    return `${months} meses`;
+  }
+
+  if (months === 0) {
+    return `${years} años`;
+  }
+
+  return `${years} años ${months} meses`;
+}
 function renderCow360(cow) {
   cow360Result.innerHTML = `
     <div class="cow-profile">
       <div class="cow-profile-header">
         <div class="cow-profile-avatar">🐄</div>
         <div>
-          <p class="eyebrow">Ficha individual</p>
+          <p class="eyebrow">Vista 360</p>
           <h3>${cow.arete || 'Sin arete'} — ${cow.nombre || 'Sin nombre'}</h3>
-          <p>${cow.raza || 'Raza no definida'} · ${cow.estadoProductivo || 'Estado no definido'}</p>
+          <p>
+            ${cow.raza || 'Raza no definida'} ·
+            ${cow.estadoProductivo || 'Estado no definido'} ·
+            ${cow.rancho || 'Rancho no definido'}
+          </p>
         </div>
       </div>
 
-      <div class="info-grid">
-        <div>
-          <span>Arete</span>
-          <strong>${cow.arete || 'N/D'}</strong>
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <span>Estado</span>
+          <strong>${cow.estadoProductivo || 'N/D'}</strong>
         </div>
 
-        <div>
-          <span>Nombre</span>
-          <strong>${cow.nombre || 'N/D'}</strong>
-        </div>
-
-        <div>
+        <div class="kpi-card">
           <span>Raza</span>
           <strong>${cow.raza || 'N/D'}</strong>
         </div>
 
-        <div>
-          <span>Fecha de nacimiento</span>
-          <strong>${cow.fechaNacimiento || 'N/D'}</strong>
+        <div class="kpi-card">
+          <span>Edad aprox.</span>
+          <strong>${calculateAge(cow.fechaNacimiento)}</strong>
         </div>
 
-        <div>
-          <span>Sexo</span>
-          <strong>${cow.sexo || 'N/D'}</strong>
-        </div>
-
-        <div>
-          <span>Estado productivo</span>
-          <strong>${cow.estadoProductivo || 'N/D'}</strong>
-        </div>
-
-        <div>
-          <span>Padre</span>
-          <strong>${cow.padre || 'N/D'}</strong>
-        </div>
-
-        <div>
-          <span>Madre</span>
-          <strong>${cow.madre || 'N/D'}</strong>
-        </div>
-
-        <div>
-          <span>Rancho / establo</span>
+        <div class="kpi-card">
+          <span>Rancho</span>
           <strong>${cow.rancho || 'N/D'}</strong>
-        </div>
-
-        <div>
-          <span>Fecha de alta</span>
-          <strong>${cow.createdAt ? new Date(cow.createdAt).toLocaleString() : 'N/D'}</strong>
         </div>
       </div>
 
-      <div class="notes-box">
-        <span>Observaciones</span>
-        <p>${cow.observaciones || 'Sin observaciones registradas.'}</p>
+      <div class="tabs-360">
+        <button class="tab-360 active" data-tab="general">Datos generales</button>
+        <button class="tab-360" data-tab="genealogia">Genealogía</button>
+        <button class="tab-360" data-tab="produccion">Producción</button>
+        <button class="tab-360" data-tab="reproduccion">Reproducción</button>
+        <button class="tab-360" data-tab="salud">Salud</button>
+        <button class="tab-360" data-tab="historial">Historial</button>
+      </div>
+
+      <div class="tab-content-360" id="tab-general">
+        <h4>Datos generales</h4>
+
+        <div class="info-grid">
+          <div>
+            <span>Número de arete</span>
+            <strong>${cow.arete || 'N/D'}</strong>
+          </div>
+
+          <div>
+            <span>Nombre / identificación</span>
+            <strong>${cow.nombre || 'N/D'}</strong>
+          </div>
+
+          <div>
+            <span>Raza</span>
+            <strong>${cow.raza || 'N/D'}</strong>
+          </div>
+
+          <div>
+            <span>Fecha de nacimiento</span>
+            <strong>${cow.fechaNacimiento || 'N/D'}</strong>
+          </div>
+
+          <div>
+            <span>Sexo</span>
+            <strong>${cow.sexo || 'N/D'}</strong>
+          </div>
+
+          <div>
+            <span>Estado productivo</span>
+            <strong>${cow.estadoProductivo || 'N/D'}</strong>
+          </div>
+
+          <div>
+            <span>Rancho / establo</span>
+            <strong>${cow.rancho || 'N/D'}</strong>
+          </div>
+
+          <div>
+            <span>Fecha de alta</span>
+            <strong>${cow.createdAt ? new Date(cow.createdAt).toLocaleString() : 'N/D'}</strong>
+          </div>
+        </div>
+
+        <div class="notes-box">
+          <span>Observaciones</span>
+          <p>${cow.observaciones || 'Sin observaciones registradas.'}</p>
+        </div>
+      </div>
+
+      <div class="tab-content-360 hidden" id="tab-genealogia">
+        <h4>Genealogía</h4>
+
+        <div class="genealogy-grid">
+          <div class="family-card">
+            <span>Padre</span>
+            <strong>${cow.padre || 'N/D'}</strong>
+          </div>
+
+          <div class="family-card main-animal">
+            <span>Animal</span>
+            <strong>${cow.arete || 'Sin arete'} — ${cow.nombre || 'Sin nombre'}</strong>
+          </div>
+
+          <div class="family-card">
+            <span>Madre</span>
+            <strong>${cow.madre || 'N/D'}</strong>
+          </div>
+        </div>
+
+        <p class="muted">
+          Esta sección podrá ampliarse después con abuelo materno, abuelo paterno, índice genético y evaluación genética.
+        </p>
+      </div>
+
+      <div class="tab-content-360 hidden" id="tab-produccion">
+        <h4>Producción</h4>
+
+        <div class="placeholder-grid">
+          <div class="placeholder-card">
+            <span>Producción diaria</span>
+            <strong>Pendiente</strong>
+            <p>Se conectará con el módulo de Control de Producción.</p>
+          </div>
+
+          <div class="placeholder-card">
+            <span>Promedio mensual</span>
+            <strong>Pendiente</strong>
+            <p>Litros promedio por periodo.</p>
+          </div>
+
+          <div class="placeholder-card">
+            <span>Último pesaje / medición</span>
+            <strong>Pendiente</strong>
+            <p>Registro de producción más reciente.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content-360 hidden" id="tab-reproduccion">
+        <h4>Reproducción</h4>
+
+        <div class="placeholder-grid">
+          <div class="placeholder-card">
+            <span>Estado reproductivo</span>
+            <strong>Pendiente</strong>
+            <p>Gestante, abierta, servida o en revisión.</p>
+          </div>
+
+          <div class="placeholder-card">
+            <span>Último parto</span>
+            <strong>Pendiente</strong>
+            <p>Fecha del último parto registrado.</p>
+          </div>
+
+          <div class="placeholder-card">
+            <span>Servicios</span>
+            <strong>Pendiente</strong>
+            <p>Historial de inseminaciones o monta.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content-360 hidden" id="tab-salud">
+        <h4>Salud</h4>
+
+        <div class="placeholder-grid">
+          <div class="placeholder-card">
+            <span>Última revisión veterinaria</span>
+            <strong>Pendiente</strong>
+            <p>Se conectará con el módulo veterinario.</p>
+          </div>
+
+          <div class="placeholder-card">
+            <span>Vacunas</span>
+            <strong>Pendiente</strong>
+            <p>Calendario sanitario del animal.</p>
+          </div>
+
+          <div class="placeholder-card">
+            <span>Tratamientos</span>
+            <strong>Pendiente</strong>
+            <p>Historial clínico y medicamentos aplicados.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content-360 hidden" id="tab-historial">
+        <h4>Historial de eventos</h4>
+
+        <div class="timeline">
+          <div class="timeline-item">
+            <span></span>
+            <div>
+              <strong>Alta del animal</strong>
+              <p>${cow.createdAt ? new Date(cow.createdAt).toLocaleString() : 'Fecha no disponible'}</p>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <span></span>
+            <div>
+              <strong>Registro inicial</strong>
+              <p>${cow.observaciones || 'Sin observaciones iniciales.'}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="profile-actions">
@@ -488,6 +670,23 @@ function renderCow360(cow) {
       </div>
     </div>
   `;
+
+  document.querySelectorAll('.tab-360').forEach((button) => {
+    button.addEventListener('click', () => {
+      const selectedTab = button.dataset.tab;
+
+      document.querySelectorAll('.tab-360').forEach((tabButton) => {
+        tabButton.classList.remove('active');
+      });
+
+      document.querySelectorAll('.tab-content-360').forEach((content) => {
+        content.classList.add('hidden');
+      });
+
+      button.classList.add('active');
+      document.querySelector(`#tab-${selectedTab}`).classList.remove('hidden');
+    });
+  });
 
   document.querySelector('#deleteCow360Btn').addEventListener('click', async () => {
     await deleteCow(cow.id);
