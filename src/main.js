@@ -165,10 +165,6 @@ const logoutBtn = document.querySelector('#logoutBtn');
 const appContent = document.querySelector('#appContent');
 const cowForm = document.querySelector('#cowForm');
 const formMessage = document.querySelector('#formMessage');
-const refreshBtn = document.querySelector('#refreshBtn');
-const loadingMessage = document.querySelector('#loadingMessage');
-const errorMessage = document.querySelector('#errorMessage');
-const itemsList = document.querySelector('#itemsList');
 const moduleTitle = document.querySelector('#moduleTitle');
 const moduleSubtitle = document.querySelector('#moduleSubtitle');
 
@@ -304,8 +300,12 @@ async function handleAuthCallback() {
   const verifier = sessionStorage.getItem(PKCE_STORAGE_KEY);
 
   if (!verifier) {
-    throw new Error('No se encontró el verificador PKCE. Intenta iniciar sesión otra vez.');
-  }
+  window.history.replaceState({}, document.title, REDIRECT_URI);
+  localStorage.removeItem(TOKEN_STORAGE_KEY);
+  sessionStorage.removeItem(PKCE_STORAGE_KEY);
+  await login();
+  return;
+}
 
   const body = new URLSearchParams({
     grant_type: 'authorization_code',
