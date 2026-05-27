@@ -367,15 +367,7 @@ async function getCows() {
 
   return items.filter((item) => item.type === 'cow' || item.arete);
 }
-      .join('');
-  } catch (error) {
-    console.error(error);
-    errorMessage.textContent = error.message;
-    errorMessage.classList.remove('hidden');
-  } finally {
-    loadingMessage.classList.add('hidden');
-  }
-}
+      
 
 async function createCow(event) {
   event.preventDefault();
