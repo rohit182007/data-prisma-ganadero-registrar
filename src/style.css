@@ -314,3 +314,91 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+.helper-card {
+  min-height: 240px;
+}
+
+.search-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.cow360-result {
+  margin-top: 18px;
+}
+
+.cow-profile {
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  padding: 22px;
+  background: #f8fafc;
+}
+
+.cow-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.cow-profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  background: #dcfce7;
+  font-size: 36px;
+}
+
+.cow-profile-header h3 {
+  margin: 0;
+}
+
+.cow-profile-header p {
+  margin: 4px 0 0;
+  color: #64748b;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.info-grid div,
+.notes-box {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.info-grid span,
+.notes-box span {
+  display: block;
+  color: #64748b;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.info-grid strong {
+  color: #0f172a;
+}
+
+.notes-box {
+  margin-top: 14px;
+}
+
+.notes-box p {
+  margin: 0;
+  color: #334155;
+}
+
+.profile-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
