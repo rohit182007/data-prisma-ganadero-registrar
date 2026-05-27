@@ -19,7 +19,7 @@ document.querySelector('#app').innerHTML = `
   </main>
 `;
 
-const API_BASE_URL = ''; // Lo llenaremos después con API Gateway
+const API_BASE_URL = 'https://68sma69hg5.execute-api.us-east-1.amazonaws.com'; // Lo llenaremos después con API Gateway
 
 document.querySelector('#saveBtn').addEventListener('click', async () => {
   const name = document.querySelector('#nameInput').value.trim();
