@@ -18,17 +18,21 @@ document.querySelector('#app').innerHTML = `
           <p>Sistema Ganadero</p>
         </div>
       </div>
-
+    
       <nav class="menu">
         <p class="menu-section">Módulos</p>
-
-        <button class="menu-item active" id="registroMenuBtn">
-          <span>📋</span>
-          Registro
+      
+        <button class="menu-item active" id="vacasMenuBtn">
+          <span>🐄</span>
+          Vacas
         </button>
-
-        <button class="submenu-item active" id="registroVacasBtn">
-          Registro de Vacas
+      
+        <button class="submenu-item active" id="registrarVacaBtn">
+          Registrar
+        </button>
+      
+        <button class="submenu-item" id="vista360Btn">
+          Vista 360
         </button>
       </nav>
 
@@ -41,100 +45,115 @@ document.querySelector('#app').innerHTML = `
     <main class="main-content">
       <section class="topbar">
         <div>
-          <p class="eyebrow">Módulo de Registro</p>
-          <h2>Registro de Vacas</h2>
-          <p class="subtitle">
-            Alta y consulta de animales Holstein dentro del sistema ganadero.
+          <p class="eyebrow" id="moduleEyebrow">Módulo de Vacas</p>
+          <h2 id="moduleTitle">Registrar Vaca</h2>
+          <p class="subtitle" id="moduleSubtitle">
+            Alta de animales Holstein dentro del sistema ganadero.
           </p>
         </div>
       </section>
 
-      <section id="appContent" class="content-grid hidden">
-        <form id="cowForm" class="card form-card">
-          <h3>Registrar vaca</h3>
-
-          <div class="form-grid">
-            <label>
-              Número de arete *
-              <input id="arete" type="text" placeholder="Ej. MX-001" required />
-            </label>
-
-            <label>
-              Nombre / identificación
-              <input id="nombre" type="text" placeholder="Ej. Luna" />
-            </label>
-
-            <label>
-              Raza
-              <select id="raza">
-                <option value="Holstein">Holstein</option>
-                <option value="Jersey">Jersey</option>
-                <option value="Pardo Suizo">Pardo Suizo</option>
-                <option value="Otra">Otra</option>
-              </select>
-            </label>
-
-            <label>
-              Fecha de nacimiento
-              <input id="fechaNacimiento" type="date" />
-            </label>
-
-            <label>
-              Sexo
-              <select id="sexo">
-                <option value="Hembra">Hembra</option>
-                <option value="Macho">Macho</option>
-              </select>
-            </label>
-
-            <label>
-              Estado productivo
-              <select id="estadoProductivo">
-                <option value="Becerra">Becerra</option>
-                <option value="Vaquilla">Vaquilla</option>
-                <option value="Vaca en producción">Vaca en producción</option>
-                <option value="Vaca seca">Vaca seca</option>
-                <option value="Baja">Baja</option>
-              </select>
-            </label>
-
-            <label>
-              Padre
-              <input id="padre" type="text" placeholder="Ej. Toro 123" />
-            </label>
-
-            <label>
-              Madre
-              <input id="madre" type="text" placeholder="Ej. Vaca 456" />
-            </label>
-
-            <label>
-              Rancho / establo
-              <input id="rancho" type="text" placeholder="Ej. Rancho Principal" />
-            </label>
-          </div>
-
-          <label>
-            Observaciones
-            <textarea id="observaciones" placeholder="Notas clínicas, productivas o administrativas"></textarea>
-          </label>
-
-          <button type="submit" id="submitBtn">Guardar vaca</button>
-          <p id="formMessage"></p>
-        </form>
-
-        <section class="card list-card">
-          <div class="list-header">
-            <div>
-              <h3>Vacas registradas</h3>
-              <p>Animales dados de alta en el sistema.</p>
+      <section id="appContent" class="hidden">
+        <section id="registrarSection" class="content-grid">
+          <form id="cowForm" class="card form-card">
+            <h3>Registrar vaca</h3>
+      
+            <div class="form-grid">
+              <label>
+                Número de arete *
+                <input id="arete" type="text" placeholder="Ej. MX-001" required />
+              </label>
+      
+              <label>
+                Nombre / identificación
+                <input id="nombre" type="text" placeholder="Ej. Luna" />
+              </label>
+      
+              <label>
+                Raza
+                <select id="raza">
+                  <option value="Holstein">Holstein</option>
+                  <option value="Jersey">Jersey</option>
+                  <option value="Pardo Suizo">Pardo Suizo</option>
+                  <option value="Otra">Otra</option>
+                </select>
+              </label>
+      
+              <label>
+                Fecha de nacimiento
+                <input id="fechaNacimiento" type="date" />
+              </label>
+      
+              <label>
+                Sexo
+                <select id="sexo">
+                  <option value="Hembra">Hembra</option>
+                  <option value="Macho">Macho</option>
+                </select>
+              </label>
+      
+              <label>
+                Estado productivo
+                <select id="estadoProductivo">
+                  <option value="Becerra">Becerra</option>
+                  <option value="Vaquilla">Vaquilla</option>
+                  <option value="Vaca en producción">Vaca en producción</option>
+                  <option value="Vaca seca">Vaca seca</option>
+                  <option value="Baja">Baja</option>
+                </select>
+              </label>
+      
+              <label>
+                Padre
+                <input id="padre" type="text" placeholder="Ej. Toro 123" />
+              </label>
+      
+              <label>
+                Madre
+                <input id="madre" type="text" placeholder="Ej. Vaca 456" />
+              </label>
+      
+              <label>
+                Rancho / establo
+                <input id="rancho" type="text" placeholder="Ej. Rancho Principal" />
+              </label>
             </div>
-            <button id="refreshBtn" class="secondary">Actualizar</button>
-          </div>
-
-          <div id="loadingMessage" class="muted">Cargando registros...</div>
-          <div id="errorMessage" class="error hidden"></div>
-          <ul id="itemsList" class="cow-list"></ul>
+      
+            <label>
+              Observaciones
+              <textarea id="observaciones" placeholder="Notas clínicas, productivas o administrativas"></textarea>
+            </label>
+      
+            <button type="submit" id="submitBtn">Guardar vaca</button>
+            <p id="formMessage"></p>
+          </form>
+      
+          <section class="card helper-card">
+            <h3>Registro individual</h3>
+            <p>
+              Utiliza esta pantalla para dar de alta una vaca o becerra dentro del sistema Holstein.
+            </p>
+            <p class="muted">
+              Después de guardar, podrás buscarla en Vista 360 por número de arete o por nombre.
+            </p>
+          </section>
+        </section>
+      
+        <section id="vista360Section" class="hidden">
+          <section class="card">
+            <h3>Vista 360 de vaca</h3>
+            <p class="muted">
+              Busca una vaca por número de arete o nombre para consultar su información completa.
+            </p>
+      
+            <div class="search-row">
+              <input id="cowSearchInput" type="text" placeholder="Buscar por arete o nombre. Ej. MX-001 o Luna" />
+              <button id="cowSearchBtn" type="button">Buscar</button>
+            </div>
+      
+            <div id="searchMessage" class="muted"></div>
+            <div id="cow360Result" class="cow360-result"></div>
+          </section>
         </section>
       </section>
     </main>
@@ -150,6 +169,19 @@ const refreshBtn = document.querySelector('#refreshBtn');
 const loadingMessage = document.querySelector('#loadingMessage');
 const errorMessage = document.querySelector('#errorMessage');
 const itemsList = document.querySelector('#itemsList');
+const moduleTitle = document.querySelector('#moduleTitle');
+const moduleSubtitle = document.querySelector('#moduleSubtitle');
+
+const registrarVacaBtn = document.querySelector('#registrarVacaBtn');
+const vista360Btn = document.querySelector('#vista360Btn');
+
+const registrarSection = document.querySelector('#registrarSection');
+const vista360Section = document.querySelector('#vista360Section');
+
+const cowSearchInput = document.querySelector('#cowSearchInput');
+const cowSearchBtn = document.querySelector('#cowSearchBtn');
+const searchMessage = document.querySelector('#searchMessage');
+const cow360Result = document.querySelector('#cow360Result');
 
 function getTokens() {
   const rawTokens = localStorage.getItem(TOKEN_STORAGE_KEY);
@@ -169,13 +201,37 @@ function authHeaders() {
   const token = getAuthToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
+function showSection(sectionName) {
+  if (sectionName === 'registrar') {
+    moduleTitle.textContent = 'Registrar Vaca';
+    moduleSubtitle.textContent = 'Alta de animales Holstein dentro del sistema ganadero.';
+
+    registrarSection.classList.remove('hidden');
+    vista360Section.classList.add('hidden');
+
+    registrarVacaBtn.classList.add('active');
+    vista360Btn.classList.remove('active');
+    return;
+  }
+
+  if (sectionName === 'vista360') {
+    moduleTitle.textContent = 'Vista 360';
+    moduleSubtitle.textContent = 'Consulta integral de una vaca por arete o nombre.';
+
+    registrarSection.classList.add('hidden');
+    vista360Section.classList.remove('hidden');
+
+    registrarVacaBtn.classList.remove('active');
+    vista360Btn.classList.add('active');
+  }
+}
 
 function updateAuthUI() {
   if (isLoggedIn()) {
     authStatus.textContent = 'Sesión iniciada';
     logoutBtn.classList.remove('hidden');
     appContent.classList.remove('hidden');
-    loadItems();
+    showSection('registrar');
     return;
   }
 
@@ -296,62 +352,21 @@ function getCowPayload() {
   };
 }
 
-async function loadItems() {
-  loadingMessage.classList.remove('hidden');
-  errorMessage.classList.add('hidden');
-  itemsList.innerHTML = '';
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/items`, {
-      headers: {
-        ...authHeaders()
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error al cargar registros: ${response.status}`);
+async function getCows() {
+  const response = await fetch(`${API_BASE_URL}/items`, {
+    headers: {
+      ...authHeaders()
     }
+  });
 
-    const items = await response.json();
-    const cows = items.filter((item) => item.type === 'cow' || item.arete);
+  if (!response.ok) {
+    throw new Error(`Error al cargar vacas: ${response.status}`);
+  }
 
-    if (cows.length === 0) {
-      itemsList.innerHTML = '<li class="empty">No hay vacas registradas todavía.</li>';
-      return;
-    }
+  const items = await response.json();
 
-    itemsList.innerHTML = cows
-      .map(
-        (cow) => `
-          <li class="cow-item" data-id="${cow.id}">
-            <div class="cow-main">
-              <div class="cow-avatar">🐄</div>
-              <div>
-                <h4>${cow.arete || 'Sin arete'} — ${cow.nombre || 'Sin nombre'}</h4>
-                <p>
-                  ${cow.raza || 'Raza no definida'} ·
-                  ${cow.estadoProductivo || 'Estado no definido'} ·
-                  ${cow.rancho || 'Rancho no definido'}
-                </p>
-                <small>
-                  Nacimiento: ${cow.fechaNacimiento || 'N/D'} ·
-                  Padre: ${cow.padre || 'N/D'} ·
-                  Madre: ${cow.madre || 'N/D'}
-                </small>
-                ${
-                  cow.observaciones
-                    ? `<small class="observaciones">Observaciones: ${cow.observaciones}</small>`
-                    : ''
-                }
-              </div>
-            </div>
-
-            <button class="danger delete-btn" data-id="${cow.id}">
-              Eliminar
-            </button>
-          </li>
-        `
-      )
+  return items.filter((item) => item.type === 'cow' || item.arete);
+}
       .join('');
   } catch (error) {
     console.error(error);
@@ -398,11 +413,129 @@ async function createCow(event) {
     formMessage.textContent = 'Vaca registrada correctamente.';
     formMessage.className = 'success';
 
-    await loadItems();
+    showSection('vista360');
+    cowSearchInput.value = payload.arete;
+    await searchCow360();
   } catch (error) {
     console.error(error);
     formMessage.textContent = error.message;
     formMessage.className = 'error';
+  }
+}
+function renderCow360(cow) {
+  cow360Result.innerHTML = `
+    <div class="cow-profile">
+      <div class="cow-profile-header">
+        <div class="cow-profile-avatar">🐄</div>
+        <div>
+          <p class="eyebrow">Ficha individual</p>
+          <h3>${cow.arete || 'Sin arete'} — ${cow.nombre || 'Sin nombre'}</h3>
+          <p>${cow.raza || 'Raza no definida'} · ${cow.estadoProductivo || 'Estado no definido'}</p>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div>
+          <span>Arete</span>
+          <strong>${cow.arete || 'N/D'}</strong>
+        </div>
+
+        <div>
+          <span>Nombre</span>
+          <strong>${cow.nombre || 'N/D'}</strong>
+        </div>
+
+        <div>
+          <span>Raza</span>
+          <strong>${cow.raza || 'N/D'}</strong>
+        </div>
+
+        <div>
+          <span>Fecha de nacimiento</span>
+          <strong>${cow.fechaNacimiento || 'N/D'}</strong>
+        </div>
+
+        <div>
+          <span>Sexo</span>
+          <strong>${cow.sexo || 'N/D'}</strong>
+        </div>
+
+        <div>
+          <span>Estado productivo</span>
+          <strong>${cow.estadoProductivo || 'N/D'}</strong>
+        </div>
+
+        <div>
+          <span>Padre</span>
+          <strong>${cow.padre || 'N/D'}</strong>
+        </div>
+
+        <div>
+          <span>Madre</span>
+          <strong>${cow.madre || 'N/D'}</strong>
+        </div>
+
+        <div>
+          <span>Rancho / establo</span>
+          <strong>${cow.rancho || 'N/D'}</strong>
+        </div>
+
+        <div>
+          <span>Fecha de alta</span>
+          <strong>${cow.createdAt ? new Date(cow.createdAt).toLocaleString() : 'N/D'}</strong>
+        </div>
+      </div>
+
+      <div class="notes-box">
+        <span>Observaciones</span>
+        <p>${cow.observaciones || 'Sin observaciones registradas.'}</p>
+      </div>
+
+      <div class="profile-actions">
+        <button class="danger" type="button" id="deleteCow360Btn">Eliminar vaca</button>
+      </div>
+    </div>
+  `;
+
+  document.querySelector('#deleteCow360Btn').addEventListener('click', async () => {
+    await deleteCow(cow.id);
+    cow360Result.innerHTML = '';
+    searchMessage.textContent = 'Vaca eliminada correctamente.';
+  });
+}
+
+async function searchCow360() {
+  const query = cowSearchInput.value.trim().toLowerCase();
+
+  if (!query) {
+    searchMessage.textContent = 'Ingresa un arete o nombre para buscar.';
+    cow360Result.innerHTML = '';
+    return;
+  }
+
+  searchMessage.textContent = 'Buscando vaca...';
+  cow360Result.innerHTML = '';
+
+  try {
+    const cows = await getCows();
+
+    const cow = cows.find((item) => {
+      const arete = String(item.arete || '').toLowerCase();
+      const nombre = String(item.nombre || '').toLowerCase();
+
+      return arete.includes(query) || nombre.includes(query);
+    });
+
+    if (!cow) {
+      searchMessage.textContent = 'No se encontró ninguna vaca con ese arete o nombre.';
+      return;
+    }
+
+    searchMessage.textContent = '';
+    renderCow360(cow);
+  } catch (error) {
+    console.error(error);
+    searchMessage.textContent = error.message;
   }
 }
 
@@ -425,25 +558,22 @@ async function deleteCow(id) {
       throw new Error(`Error al eliminar vaca: ${response.status}`);
     }
 
-    await loadItems();
   } catch (error) {
     console.error(error);
     alert(error.message);
   }
 }
 
-logoutBtn.addEventListener('click', logout);
-refreshBtn.addEventListener('click', loadItems);
+registrarVacaBtn.addEventListener('click', () => showSection('registrar'));
+vista360Btn.addEventListener('click', () => showSection('vista360'));
+
 cowForm.addEventListener('submit', createCow);
+cowSearchBtn.addEventListener('click', searchCow360);
 
-itemsList.addEventListener('click', (event) => {
-  const deleteButton = event.target.closest('.delete-btn');
-
-  if (!deleteButton) {
-    return;
+cowSearchInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    searchCow360();
   }
-
-  deleteCow(deleteButton.dataset.id);
 });
 
 try {
