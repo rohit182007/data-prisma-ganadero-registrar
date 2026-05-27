@@ -13,27 +13,76 @@ document.querySelector('#app').innerHTML = `
   <div class="app-shell">
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-icon">🐄</div>
+        <div class="brand-icon">✦</div>
         <div>
           <h1>Holstein</h1>
-          <p>Sistema Ganadero</p>
+          <p>de México</p>
         </div>
       </div>
 
       <nav class="menu">
-        <p class="menu-section">Módulos</p>
+        <p class="menu-section">Principal</p>
 
-        <button class="menu-item active" id="vacasMenuBtn">
-          <span>🐄</span>
-          Vacas
+        <button class="menu-item ghost" type="button">
+          <span>⌂</span>
+          Dashboard
         </button>
 
-        <button class="submenu-item active" id="registrarVacaBtn">
+        <button class="menu-item active" id="vacasMenuBtn" type="button">
+          <span>🐄</span>
+          Animales
+          <small>Vacas</small>
+        </button>
+
+        <button class="menu-item ghost" type="button">
+          <span>⌘</span>
+          Hato y Rancho
+        </button>
+
+        <p class="menu-section">Operaciones</p>
+
+        <button class="submenu-item active" id="registrarVacaBtn" type="button">
+          <span>＋</span>
           Registrar
         </button>
 
-        <button class="submenu-item" id="vista360Btn">
+        <button class="submenu-item" id="vista360Btn" type="button">
+          <span>◎</span>
           Vista 360
+        </button>
+
+        <button class="menu-item ghost" type="button">
+          <span>◌</span>
+          Producción
+        </button>
+
+        <button class="menu-item ghost" type="button">
+          <span>▣</span>
+          Laboratorio
+        </button>
+
+        <button class="menu-item ghost" type="button">
+          <span>✓</span>
+          Certificación
+        </button>
+
+        <p class="menu-section">Gestión</p>
+
+        <button class="menu-item ghost" type="button">
+          <span>◈</span>
+          Reportes
+        </button>
+
+        <button class="menu-item ghost" type="button">
+          <span>▤</span>
+          Analytics
+        </button>
+
+        <p class="menu-section">Configuración</p>
+
+        <button class="menu-item ghost" type="button">
+          <span>⚙</span>
+          Usuarios
         </button>
       </nav>
 
@@ -45,8 +94,34 @@ document.querySelector('#app').innerHTML = `
     </aside>
 
     <main class="main-content">
-      <section class="topbar">
+      <section class="app-topbar">
+        <div class="global-search">
+          <span>⌕</span>
+          <input id="globalSearchInput" type="search" placeholder="Buscar animales, aretes, socios, hatos..." />
+        </div>
+
+        <div class="topbar-actions">
+          <button class="quick-add" type="button">+ Nuevo</button>
+          <button class="icon-button" type="button" aria-label="Notificaciones">◔</button>
+          <div class="user-chip">
+            <span>AV</span>
+            <div>
+              <strong>Ana Vargas</strong>
+              <small>Administrador</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="topbar module-header">
         <div>
+          <div class="breadcrumb">
+            <span>Registro</span>
+            <span>›</span>
+            <span>Animales</span>
+            <span>›</span>
+            <strong id="breadcrumbCurrent">Registrar</strong>
+          </div>
           <p class="eyebrow" id="moduleEyebrow">Módulo de Vacas</p>
           <h2 id="moduleTitle">Registrar Vaca</h2>
           <p class="subtitle" id="moduleSubtitle">
@@ -58,7 +133,13 @@ document.querySelector('#app').innerHTML = `
       <section id="appContent" class="hidden">
         <section id="registrarSection" class="content-grid">
           <form id="cowForm" class="card form-card">
-            <h3>Registrar vaca</h3>
+            <div class="section-heading-row">
+              <div>
+                <p class="eyebrow">Alta individual</p>
+                <h3>Registrar vaca</h3>
+              </div>
+              <span class="status-pill soft">Registro</span>
+            </div>
 
             <div class="form-grid">
               <label>
@@ -130,23 +211,33 @@ document.querySelector('#app').innerHTML = `
             <p id="formMessage"></p>
           </form>
 
-          <section class="card helper-card">
-            <h3>Registro individual</h3>
-            <p>
-              Utiliza esta pantalla para dar de alta una vaca o becerra dentro del sistema Holstein.
-            </p>
-            <p class="muted">
-              Después de guardar, podrás buscarla en Vista 360 por número de arete o por nombre.
-            </p>
+          <section class="card helper-card dashboard-helper">
+            <div class="mini-dashboard-card">
+              <span>Flujo recomendado</span>
+              <strong>Alta → Vista 360 → Eventos</strong>
+              <p>Registra una vaca o becerra y después consulta su ficha completa por arete o nombre.</p>
+            </div>
+
+            <div class="mini-dashboard-list">
+              <div><span></span> Datos generales y genealogía</div>
+              <div><span></span> Eventos de producción, salud y reproducción</div>
+              <div><span></span> Historial integrado por animal</div>
+            </div>
           </section>
         </section>
 
         <section id="vista360Section" class="hidden">
-          <section class="card">
-            <h3>Vista 360 de vaca</h3>
-            <p class="muted">
-              Busca una vaca por número de arete o nombre para consultar su información completa.
-            </p>
+          <section class="card search-panel">
+            <div class="section-heading-row">
+              <div>
+                <p class="eyebrow">Consulta individual</p>
+                <h3>Vista 360 de vaca</h3>
+                <p class="muted">
+                  Busca una vaca por número de arete o nombre para consultar su información completa.
+                </p>
+              </div>
+              <span class="status-pill soft">Activo</span>
+            </div>
 
             <div class="search-row">
               <input id="cowSearchInput" type="text" placeholder="Buscar por arete o nombre. Ej. MX-001 o Luna" />
@@ -172,6 +263,7 @@ const formMessage = document.querySelector('#formMessage');
 
 const moduleTitle = document.querySelector('#moduleTitle');
 const moduleSubtitle = document.querySelector('#moduleSubtitle');
+const breadcrumbCurrent = document.querySelector('#breadcrumbCurrent');
 
 const registrarVacaBtn = document.querySelector('#registrarVacaBtn');
 const vista360Btn = document.querySelector('#vista360Btn');
@@ -183,6 +275,7 @@ const cowSearchInput = document.querySelector('#cowSearchInput');
 const cowSearchBtn = document.querySelector('#cowSearchBtn');
 const searchMessage = document.querySelector('#searchMessage');
 const cow360Result = document.querySelector('#cow360Result');
+const globalSearchInput = document.querySelector('#globalSearchInput');
 
 function getTokens() {
   const rawTokens = localStorage.getItem(TOKEN_STORAGE_KEY);
@@ -207,6 +300,7 @@ function showSection(sectionName) {
   if (sectionName === 'registrar') {
     moduleTitle.textContent = 'Registrar Vaca';
     moduleSubtitle.textContent = 'Alta de animales Holstein dentro del sistema ganadero.';
+    breadcrumbCurrent.textContent = 'Registrar';
 
     registrarSection.classList.remove('hidden');
     vista360Section.classList.add('hidden');
@@ -219,6 +313,7 @@ function showSection(sectionName) {
   if (sectionName === 'vista360') {
     moduleTitle.textContent = 'Vista 360';
     moduleSubtitle.textContent = 'Consulta integral de una vaca por arete o nombre.';
+    breadcrumbCurrent.textContent = 'Ficha 360';
 
     registrarSection.classList.add('hidden');
     vista360Section.classList.remove('hidden');
@@ -487,27 +582,35 @@ function calculateAge(fechaNacimiento) {
 function renderCow360(cow) {
   cow360Result.innerHTML = `
     <div class="cow-profile">
-      <div class="cow-profile-header">
-        <div class="cow-profile-avatar">🐄</div>
-        <div>
-          <p class="eyebrow">Vista 360</p>
-          <h3>${cow.arete || 'Sin arete'} — ${cow.nombre || 'Sin nombre'}</h3>
-          <p>
-            ${cow.raza || 'Raza no definida'} ·
-            ${cow.estadoProductivo || 'Estado no definido'} ·
-            ${cow.rancho || 'Rancho no definido'}
-          </p>
+      <div class="cow-profile-hero">
+        <div class="cow-photo-card">
+          <div class="cow-photo">🐄</div>
+          <button class="photo-action" type="button">Ver galería</button>
+        </div>
+
+        <div class="cow-identity-card">
+          <div class="identity-topline">
+            <p class="eyebrow">Ficha 360</p>
+            <span class="status-pill">Activo</span>
+          </div>
+          <h3>${cow.nombre || 'Sin nombre'} <small>${cow.arete || 'Sin arete'}</small></h3>
+          <div class="identity-grid">
+            <div><span>Hato</span><strong>${cow.rancho || 'N/D'}</strong></div>
+            <div><span>Sexo</span><strong>${cow.sexo || 'N/D'}</strong></div>
+            <div><span>Raza</span><strong>${cow.raza || 'N/D'}</strong></div>
+            <div><span>Estado</span><strong>${cow.estadoProductivo || 'N/D'}</strong></div>
+          </div>
         </div>
       </div>
 
       <div class="kpi-grid">
-        <div class="kpi-card">
+        <div class="kpi-card highlight">
           <span>Estado</span>
           <strong>${cow.estadoProductivo || 'N/D'}</strong>
         </div>
 
         <div class="kpi-card">
-          <span>Raza</span>
+          <span>Pureza / raza</span>
           <strong>${cow.raza || 'N/D'}</strong>
         </div>
 
@@ -523,7 +626,7 @@ function renderCow360(cow) {
       </div>
 
       <div class="tabs-360">
-        <button class="tab-360 active" data-tab="general">Datos generales</button>
+        <button class="tab-360 active" data-tab="general">Resumen</button>
         <button class="tab-360" data-tab="genealogia">Genealogía</button>
         <button class="tab-360" data-tab="produccion">Producción</button>
         <button class="tab-360" data-tab="reproduccion">Reproducción</button>
@@ -532,7 +635,7 @@ function renderCow360(cow) {
       </div>
 
       <div class="tab-content-360" id="tab-general">
-        <h4>Datos generales</h4>
+        <h4>Resumen general</h4>
 
         <div class="info-grid">
           <div>
@@ -947,6 +1050,22 @@ cowSearchInput.addEventListener('keydown', (event) => {
   if (event.key === 'Enter') {
     searchCow360();
   }
+});
+
+globalSearchInput.addEventListener('keydown', async (event) => {
+  if (event.key !== 'Enter') {
+    return;
+  }
+
+  const query = globalSearchInput.value.trim();
+
+  if (!query) {
+    return;
+  }
+
+  showSection('vista360');
+  cowSearchInput.value = query;
+  await searchCow360();
 });
 
 try {
