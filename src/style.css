@@ -402,3 +402,158 @@ textarea {
   display: flex;
   justify-content: flex-end;
 }
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.kpi-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.kpi-card span {
+  display: block;
+  color: #64748b;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.kpi-card strong {
+  display: block;
+  color: #0f172a;
+  font-size: 18px;
+}
+
+.tabs-360 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 22px 0;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 12px;
+}
+
+.tab-360 {
+  background: #e2e8f0;
+  color: #0f172a;
+  padding: 10px 14px;
+  border-radius: 999px;
+}
+
+.tab-360.active {
+  background: #166534;
+  color: white;
+}
+
+.tab-content-360 h4 {
+  margin: 0 0 16px;
+  font-size: 20px;
+}
+
+.genealogy-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr;
+  gap: 14px;
+  align-items: stretch;
+  margin-bottom: 16px;
+}
+
+.family-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 18px;
+  text-align: center;
+}
+
+.family-card span {
+  display: block;
+  color: #64748b;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.family-card strong {
+  color: #0f172a;
+}
+
+.family-card.main-animal {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+.placeholder-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.placeholder-card {
+  background: white;
+  border: 1px dashed #cbd5e1;
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.placeholder-card span {
+  display: block;
+  color: #64748b;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.placeholder-card strong {
+  display: block;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.placeholder-card p {
+  margin: 0;
+  color: #64748b;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.timeline-item > span {
+  width: 14px;
+  height: 14px;
+  background: #166534;
+  border-radius: 999px;
+  margin-top: 4px;
+}
+
+.timeline-item strong {
+  display: block;
+  color: #0f172a;
+}
+
+.timeline-item p {
+  margin: 4px 0 0;
+  color: #64748b;
+}
+
+@media (max-width: 960px) {
+  .kpi-grid,
+  .genealogy-grid,
+  .placeholder-grid {
+    grid-template-columns: 1fr;
+  }
+}
