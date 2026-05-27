@@ -9,92 +9,170 @@ const TOKEN_STORAGE_KEY = 'demo_auth_tokens';
 const PKCE_STORAGE_KEY = 'demo_pkce_verifier';
 
 document.querySelector('#app').innerHTML = `
-  <main class="container">
-    <header class="header">
-      <div>
-        <p class="eyebrow">AWS Demo</p>
-        <h1>Web + API + DynamoDB</h1>
-        <p class="subtitle">
-          Frontend en Amplify, login con Cognito, API Gateway, Lambda y DynamoDB.
-        </p>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">🐄</div>
+        <div>
+          <h1>Holstein</h1>
+          <p>Sistema Ganadero</p>
+        </div>
       </div>
 
-      <div class="auth-box">
+      <nav class="menu">
+        <p class="menu-section">Módulos</p>
+
+        <button class="menu-item active" id="registroMenuBtn">
+          <span>📋</span>
+          Registro
+        </button>
+
+        <button class="submenu-item active" id="registroVacasBtn">
+          Registro de Vacas
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
         <p id="authStatus">Revisando sesión...</p>
-        <button id="loginBtn">Iniciar sesión</button>
         <button id="logoutBtn" class="secondary hidden">Cerrar sesión</button>
       </div>
-    </header>
+    </aside>
 
-    <section id="appContent" class="hidden">
-      <section class="card">
-        <h2>Crear registro</h2>
-
-        <div class="form-row">
-          <input id="nameInput" placeholder="Nombre del item" maxlength="100" />
-          <button id="saveBtn">Guardar</button>
+    <main class="main-content">
+      <section class="topbar">
+        <div>
+          <p class="eyebrow">Módulo de Registro</p>
+          <h2>Registro de Vacas</h2>
+          <p class="subtitle">
+            Alta y consulta de animales Holstein dentro del sistema ganadero.
+          </p>
         </div>
-
-        <p id="formMessage" class="message"></p>
       </section>
 
-      <section class="card">
-        <div class="section-header">
-          <h2>Registros</h2>
-          <button id="loadBtn" class="secondary">Actualizar</button>
-        </div>
+      <section id="appContent" class="content-grid hidden">
+        <form id="cowForm" class="card form-card">
+          <h3>Registrar vaca</h3>
 
-        <p id="listMessage" class="message"></p>
-        <ul id="itemsList" class="items-list"></ul>
+          <div class="form-grid">
+            <label>
+              Número de arete *
+              <input id="arete" type="text" placeholder="Ej. MX-001" required />
+            </label>
+
+            <label>
+              Nombre / identificación
+              <input id="nombre" type="text" placeholder="Ej. Luna" />
+            </label>
+
+            <label>
+              Raza
+              <select id="raza">
+                <option value="Holstein">Holstein</option>
+                <option value="Jersey">Jersey</option>
+                <option value="Pardo Suizo">Pardo Suizo</option>
+                <option value="Otra">Otra</option>
+              </select>
+            </label>
+
+            <label>
+              Fecha de nacimiento
+              <input id="fechaNacimiento" type="date" />
+            </label>
+
+            <label>
+              Sexo
+              <select id="sexo">
+                <option value="Hembra">Hembra</option>
+                <option value="Macho">Macho</option>
+              </select>
+            </label>
+
+            <label>
+              Estado productivo
+              <select id="estadoProductivo">
+                <option value="Becerra">Becerra</option>
+                <option value="Vaquilla">Vaquilla</option>
+                <option value="Vaca en producción">Vaca en producción</option>
+                <option value="Vaca seca">Vaca seca</option>
+                <option value="Baja">Baja</option>
+              </select>
+            </label>
+
+            <label>
+              Padre
+              <input id="padre" type="text" placeholder="Ej. Toro 123" />
+            </label>
+
+            <label>
+              Madre
+              <input id="madre" type="text" placeholder="Ej. Vaca 456" />
+            </label>
+
+            <label>
+              Rancho / establo
+              <input id="rancho" type="text" placeholder="Ej. Rancho Principal" />
+            </label>
+          </div>
+
+          <label>
+            Observaciones
+            <textarea id="observaciones" placeholder="Notas clínicas, productivas o administrativas"></textarea>
+          </label>
+
+          <button type="submit" id="submitBtn">Guardar vaca</button>
+          <p id="formMessage"></p>
+        </form>
+
+        <section class="card list-card">
+          <div class="list-header">
+            <div>
+              <h3>Vacas registradas</h3>
+              <p>Animales dados de alta en el sistema.</p>
+            </div>
+            <button id="refreshBtn" class="secondary">Actualizar</button>
+          </div>
+
+          <div id="loadingMessage" class="muted">Cargando registros...</div>
+          <div id="errorMessage" class="error hidden"></div>
+          <ul id="itemsList" class="cow-list"></ul>
+        </section>
       </section>
-    </section>
-  </main>
+    </main>
+  </div>
 `;
 
 const authStatus = document.querySelector('#authStatus');
-const loginBtn = document.querySelector('#loginBtn');
 const logoutBtn = document.querySelector('#logoutBtn');
 const appContent = document.querySelector('#appContent');
-
-const nameInput = document.querySelector('#nameInput');
-const saveBtn = document.querySelector('#saveBtn');
-const loadBtn = document.querySelector('#loadBtn');
-const itemsList = document.querySelector('#itemsList');
+const cowForm = document.querySelector('#cowForm');
 const formMessage = document.querySelector('#formMessage');
-const listMessage = document.querySelector('#listMessage');
+const refreshBtn = document.querySelector('#refreshBtn');
+const loadingMessage = document.querySelector('#loadingMessage');
+const errorMessage = document.querySelector('#errorMessage');
+const itemsList = document.querySelector('#itemsList');
 
 function getTokens() {
-  const raw = localStorage.getItem(TOKEN_STORAGE_KEY);
-  return raw ? JSON.parse(raw) : null;
-}
-
-function setTokens(tokens) {
-  localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(tokens));
-}
-
-function clearTokens() {
-  localStorage.removeItem(TOKEN_STORAGE_KEY);
-  localStorage.removeItem(PKCE_STORAGE_KEY);
-}
-
-function getAccessToken() {
-  return getTokens()?.access_token;
+  const rawTokens = localStorage.getItem(TOKEN_STORAGE_KEY);
+  return rawTokens ? JSON.parse(rawTokens) : null;
 }
 
 function isLoggedIn() {
   const tokens = getTokens();
+  return Boolean(tokens?.access_token);
+}
 
-  if (!tokens?.expires_at) {
-    return false;
-  }
+function getAuthToken() {
+  return getTokens()?.access_token;
+}
 
-  return Date.now() < tokens.expires_at;
+function authHeaders() {
+  const token = getAuthToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 function updateAuthUI() {
   if (isLoggedIn()) {
     authStatus.textContent = 'Sesión iniciada';
-    loginBtn.classList.add('hidden');
     logoutBtn.classList.remove('hidden');
     appContent.classList.remove('hidden');
     loadItems();
@@ -102,21 +180,38 @@ function updateAuthUI() {
   }
 
   authStatus.textContent = 'Redirigiendo a inicio de sesión...';
-  loginBtn.classList.add('hidden');
   logoutBtn.classList.add('hidden');
   appContent.classList.add('hidden');
-  console.log('No hay sesión. Redirigiendo a Cognito...', {
-  COGNITO_CLIENT_ID,
-  COGNITO_DOMAIN
-  });
+
   login();
 }
 
+async function generateCodeVerifier() {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+
+  return btoa(String.fromCharCode(...array))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}
+
+async function generateCodeChallenge(verifier) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(verifier);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+
+  return btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}
+
 async function login() {
-  const verifier = generateCodeVerifier();
+  const verifier = await generateCodeVerifier();
   const challenge = await generateCodeChallenge(verifier);
 
-  localStorage.setItem(PKCE_STORAGE_KEY, verifier);
+  sessionStorage.setItem(PKCE_STORAGE_KEY, verifier);
 
   const params = new URLSearchParams({
     client_id: COGNITO_CLIENT_ID,
@@ -131,7 +226,8 @@ async function login() {
 }
 
 function logout() {
-  clearTokens();
+  localStorage.removeItem(TOKEN_STORAGE_KEY);
+  sessionStorage.removeItem(PKCE_STORAGE_KEY);
 
   const params = new URLSearchParams({
     client_id: COGNITO_CLIENT_ID,
@@ -142,17 +238,17 @@ function logout() {
 }
 
 async function handleAuthCallback() {
-  const url = new URL(window.location.href);
-  const code = url.searchParams.get('code');
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
 
   if (!code) {
     return;
   }
 
-  const verifier = localStorage.getItem(PKCE_STORAGE_KEY);
+  const verifier = sessionStorage.getItem(PKCE_STORAGE_KEY);
 
   if (!verifier) {
-    throw new Error('No se encontró el PKCE verifier local.');
+    throw new Error('No se encontró el verificador PKCE. Intenta iniciar sesión otra vez.');
   }
 
   const body = new URLSearchParams({
@@ -171,53 +267,41 @@ async function handleAuthCallback() {
     body
   });
 
-  const data = await response.json();
-
   if (!response.ok) {
-    throw new Error(data.error_description || data.error || 'Error al obtener token');
+    const text = await response.text();
+    throw new Error(`Error al obtener token: ${text}`);
   }
 
-  const expiresAt = Date.now() + data.expires_in * 1000;
+  const tokens = await response.json();
 
-  setTokens({
-    ...data,
-    expires_at: expiresAt
-  });
-
-  localStorage.removeItem(PKCE_STORAGE_KEY);
+  localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(tokens));
+  sessionStorage.removeItem(PKCE_STORAGE_KEY);
 
   window.history.replaceState({}, document.title, REDIRECT_URI);
 }
 
-function authHeaders() {
-  const token = getAccessToken();
-
-  return token
-    ? { Authorization: `Bearer ${token}` }
-    : {};
-}
-
-function setLoading(isLoading) {
-  saveBtn.disabled = isLoading;
-  loadBtn.disabled = isLoading;
-  saveBtn.textContent = isLoading ? 'Guardando...' : 'Guardar';
-}
-
-function showMessage(element, text, type = 'info') {
-  element.textContent = text;
-  element.className = `message ${type}`;
+function getCowPayload() {
+  return {
+    type: 'cow',
+    arete: document.querySelector('#arete').value.trim(),
+    nombre: document.querySelector('#nombre').value.trim(),
+    raza: document.querySelector('#raza').value,
+    fechaNacimiento: document.querySelector('#fechaNacimiento').value,
+    sexo: document.querySelector('#sexo').value,
+    estadoProductivo: document.querySelector('#estadoProductivo').value,
+    padre: document.querySelector('#padre').value.trim(),
+    madre: document.querySelector('#madre').value.trim(),
+    rancho: document.querySelector('#rancho').value.trim(),
+    observaciones: document.querySelector('#observaciones').value.trim()
+  };
 }
 
 async function loadItems() {
-  if (!isLoggedIn()) {
-    return;
-  }
+  loadingMessage.classList.remove('hidden');
+  errorMessage.classList.add('hidden');
+  itemsList.innerHTML = '';
 
   try {
-    loadBtn.disabled = true;
-    loadBtn.textContent = 'Cargando...';
-    showMessage(listMessage, 'Cargando registros...', 'info');
-
     const response = await fetch(`${API_BASE_URL}/items`, {
       headers: {
         ...authHeaders()
@@ -229,100 +313,107 @@ async function loadItems() {
     }
 
     const items = await response.json();
+    const cows = items.filter((item) => item.type === 'cow' || item.arete);
 
-    itemsList.innerHTML = '';
-
-    if (!items.length) {
-      showMessage(listMessage, 'No hay registros todavía.', 'info');
+    if (cows.length === 0) {
+      itemsList.innerHTML = '<li class="empty">No hay vacas registradas todavía.</li>';
       return;
     }
 
-    showMessage(listMessage, `${items.length} registro(s) encontrado(s).`, 'success');
+    itemsList.innerHTML = cows
+      .map(
+        (cow) => `
+          <li class="cow-item" data-id="${cow.id}">
+            <div class="cow-main">
+              <div class="cow-avatar">🐄</div>
+              <div>
+                <h4>${cow.arete || 'Sin arete'} — ${cow.nombre || 'Sin nombre'}</h4>
+                <p>
+                  ${cow.raza || 'Raza no definida'} ·
+                  ${cow.estadoProductivo || 'Estado no definido'} ·
+                  ${cow.rancho || 'Rancho no definido'}
+                </p>
+                <small>
+                  Nacimiento: ${cow.fechaNacimiento || 'N/D'} ·
+                  Padre: ${cow.padre || 'N/D'} ·
+                  Madre: ${cow.madre || 'N/D'}
+                </small>
+                ${
+                  cow.observaciones
+                    ? `<small class="observaciones">Observaciones: ${cow.observaciones}</small>`
+                    : ''
+                }
+              </div>
+            </div>
 
-    items.forEach((item) => {
-      const li = document.createElement('li');
-      li.className = 'item';
-
-      const createdAt = item.createdAt
-        ? new Date(item.createdAt).toLocaleString()
-        : 'Sin fecha';
-
-      li.innerHTML = `
-        <div class="item-content">
-          <strong>${escapeHtml(item.name)}</strong>
-          <span>ID: ${escapeHtml(item.id)}</span>
-          <small>${createdAt}</small>
-        </div>
-        <button class="danger" data-id="${escapeHtml(item.id)}">
-          Eliminar
-        </button>
-      `;
-
-      itemsList.appendChild(li);
-    });
+            <button class="danger delete-btn" data-id="${cow.id}">
+              Eliminar
+            </button>
+          </li>
+        `
+      )
+      .join('');
   } catch (error) {
     console.error(error);
-    showMessage(listMessage, error.message, 'error');
+    errorMessage.textContent = error.message;
+    errorMessage.classList.remove('hidden');
   } finally {
-    loadBtn.disabled = false;
-    loadBtn.textContent = 'Actualizar';
+    loadingMessage.classList.add('hidden');
   }
 }
 
-async function saveItem() {
-  const name = nameInput.value.trim();
+async function createCow(event) {
+  event.preventDefault();
 
-  if (!name) {
-    showMessage(formMessage, 'Escribe un nombre antes de guardar.', 'error');
+  const payload = getCowPayload();
+
+  if (!payload.arete) {
+    formMessage.textContent = 'El número de arete es obligatorio.';
+    formMessage.className = 'error';
     return;
   }
 
-  if (name.length > 100) {
-    showMessage(formMessage, 'El nombre no puede superar 100 caracteres.', 'error');
-    return;
-  }
+  formMessage.textContent = 'Guardando vaca...';
+  formMessage.className = 'muted';
 
   try {
-    setLoading(true);
-    showMessage(formMessage, 'Guardando registro...', 'info');
-
     const response = await fetch(`${API_BASE_URL}/items`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         ...authHeaders()
       },
-      body: JSON.stringify({ name })
+      body: JSON.stringify(payload)
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      throw new Error(data.message || 'Error al guardar');
+      throw new Error(`Error al guardar vaca: ${response.status}`);
     }
 
-    nameInput.value = '';
-    showMessage(formMessage, `Registro guardado correctamente: ${data.id}`, 'success');
+    cowForm.reset();
+    document.querySelector('#raza').value = 'Holstein';
+    document.querySelector('#sexo').value = 'Hembra';
+    document.querySelector('#estadoProductivo').value = 'Becerra';
+
+    formMessage.textContent = 'Vaca registrada correctamente.';
+    formMessage.className = 'success';
 
     await loadItems();
   } catch (error) {
     console.error(error);
-    showMessage(formMessage, error.message, 'error');
-  } finally {
-    setLoading(false);
+    formMessage.textContent = error.message;
+    formMessage.className = 'error';
   }
 }
 
-async function deleteItem(id) {
-  const confirmed = window.confirm(`¿Eliminar el item ${id}?`);
+async function deleteCow(id) {
+  const confirmed = confirm('¿Seguro que deseas eliminar esta vaca?');
 
   if (!confirmed) {
     return;
   }
 
   try {
-    showMessage(listMessage, 'Eliminando registro...', 'info');
-
     const response = await fetch(`${API_BASE_URL}/items/${id}`, {
       method: 'DELETE',
       headers: {
@@ -330,70 +421,29 @@ async function deleteItem(id) {
       }
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      throw new Error(data.message || 'Error al eliminar');
+      throw new Error(`Error al eliminar vaca: ${response.status}`);
     }
 
-    showMessage(listMessage, 'Registro eliminado correctamente.', 'success');
     await loadItems();
   } catch (error) {
     console.error(error);
-    showMessage(listMessage, error.message, 'error');
+    alert(error.message);
   }
 }
 
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
-
-function generateCodeVerifier() {
-  const array = new Uint8Array(32);
-  crypto.getRandomValues(array);
-
-  return base64UrlEncode(array);
-}
-
-async function generateCodeChallenge(verifier) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(verifier);
-  const digest = await crypto.subtle.digest('SHA-256', data);
-
-  return base64UrlEncode(new Uint8Array(digest));
-}
-
-function base64UrlEncode(arrayBuffer) {
-  return btoa(String.fromCharCode(...arrayBuffer))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-}
-
-loginBtn.addEventListener('click', login);
 logoutBtn.addEventListener('click', logout);
-saveBtn.addEventListener('click', saveItem);
-loadBtn.addEventListener('click', loadItems);
-
-nameInput.addEventListener('keydown', (event) => {
-  if (event.key === 'Enter') {
-    saveItem();
-  }
-});
+refreshBtn.addEventListener('click', loadItems);
+cowForm.addEventListener('submit', createCow);
 
 itemsList.addEventListener('click', (event) => {
-  const button = event.target.closest('button[data-id]');
+  const deleteButton = event.target.closest('.delete-btn');
 
-  if (!button) {
+  if (!deleteButton) {
     return;
   }
 
-  deleteItem(button.dataset.id);
+  deleteCow(deleteButton.dataset.id);
 });
 
 try {
