@@ -172,3 +172,21 @@ button.danger:hover {
     font-size: 28px;
   }
 }
+
+
+.auth-box {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.auth-box p {
+  margin: 0;
+  color: #cbd5e1;
+}
+
+.hidden {
+  display: none !important;
+}
