@@ -557,3 +557,11 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+.event-form {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 18px;
+}
