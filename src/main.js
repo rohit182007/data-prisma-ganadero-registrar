@@ -687,26 +687,54 @@ function renderCow360(cow) {
 
       <div class="tab-content-360 hidden" id="tab-genealogia">
         <h4>Genealogía</h4>
-
-        <div class="genealogy-grid">
-          <div class="family-card">
-            <span>Padre</span>
-            <strong>${cow.padre || 'N/D'}</strong>
+      
+        <div class="pedigree-board">
+          <div class="pedigree-row ancestors">
+            <div class="pedigree-card muted-card">
+              <span>Abuelo paterno</span>
+              <strong>N/D</strong>
+            </div>
+      
+            <div class="pedigree-card muted-card">
+              <span>Abuela paterna</span>
+              <strong>N/D</strong>
+            </div>
+      
+            <div class="pedigree-card muted-card">
+              <span>Abuelo materno</span>
+              <strong>N/D</strong>
+            </div>
+      
+            <div class="pedigree-card muted-card">
+              <span>Abuela materna</span>
+              <strong>N/D</strong>
+            </div>
           </div>
-
-          <div class="family-card main-animal">
-            <span>Animal</span>
-            <strong>${cow.arete || 'Sin arete'} — ${cow.nombre || 'Sin nombre'}</strong>
+      
+          <div class="pedigree-row parents">
+            <div class="pedigree-card">
+              <span>Padre</span>
+              <strong>${cow.padre || 'N/D'}</strong>
+            </div>
+      
+            <div class="pedigree-card">
+              <span>Madre</span>
+              <strong>${cow.madre || 'N/D'}</strong>
+            </div>
           </div>
-
-          <div class="family-card">
-            <span>Madre</span>
-            <strong>${cow.madre || 'N/D'}</strong>
+      
+          <div class="pedigree-row current">
+            <div class="pedigree-card current-animal">
+              <span>Animal actual</span>
+              <strong>${cow.arete || 'Sin arete'} — ${cow.nombre || 'Sin nombre'}</strong>
+              <p>${cow.raza || 'Raza no definida'} · ${cow.estadoProductivo || 'Estado no definido'}</p>
+            </div>
           </div>
         </div>
-
+      
         <p class="muted">
-          Esta sección podrá ampliarse después con abuelo materno, abuelo paterno, índice genético y evaluación genética.
+          Esta sección queda preparada para integrar evaluación genética, pureza Holstein,
+          abuelo materno, abuelo paterno e indicadores de linaje.
         </p>
       </div>
 
